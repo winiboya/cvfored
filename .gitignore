@@ -1,2 +1,4 @@
 # ignore all files in any directory named testdata
 testdata/
+gaze_detection_model.h5
+cv_env/
