@@ -3,3 +3,5 @@ testdata/
 gaze_detection_model.h5
 cv_env/
 .DS_Store
+cvfored_env/
+
