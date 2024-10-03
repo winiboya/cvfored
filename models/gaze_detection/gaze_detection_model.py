@@ -170,59 +170,6 @@ class GazeDetectionModel:
         _, validation_generator = self.create_data_generators()
         self.save_correct_predictions(validation_generator, output_dir, num_images)
         
-    # def predict_and_save_single_image(self, image_path, true_label=None, output_path='predicted_image.png'):
-    #     """
-    #     Predicts the class of a single image and saves it with true and predicted labels overlaid.
-        
-    #     Parameters:
-    #     - image_path: Path to the input image.
-    #     - true_label: True label of the image (optional). If not provided, only the predicted label will be shown.
-    #     - output_path: Path to save the output image with overlay text.
-    #     """
-    #     # Load and preprocess the image
-    #     img = load_img(image_path, target_size=self.target_size)
-    #     img_array = img_to_array(img)
-    #     img_array = np.expand_dims(img_array, axis=0)  # Expand dimensions to match input shape
-    #     img_array = img_array / 255.0  # Rescale
-
-    #     # Predict the label
-    #     prediction = self.model.predict(img_array)
-    #     predicted_label_idx = np.argmax(prediction)
-        
-    #     # Get class indices and decode the label
-    #     _, validation_generator = self.create_data_generators()  # Only for class indices
-    #     idx_to_class = {v: k for k, v in validation_generator.class_indices.items()}
-    #     predicted_label = idx_to_class[predicted_label_idx]
-        
-    #     # Convert to PIL image
-    #     img_array = (img_array[0] * 255).astype(np.uint8)
-    #     pil_img = Image.fromarray(img_array)
-    #     draw = ImageDraw.Draw(pil_img)
-    #     font_size = 20
-
-    #     try:
-    #         font = ImageFont.truetype("arial.ttf", font_size)
-    #     except IOError:
-    #         font = ImageFont.load_default()
-
-    #     # Prepare text for overlay
-    #     if true_label:
-    #         text = f"True: {true_label}\nPred: {predicted_label}"
-    #     else:
-    #         text = f"Pred: {predicted_label}"
-        
-    #     position = (10, 10)
-    #     text_bbox = draw.textbbox(position, text, font=font)
-    #     text_width = text_bbox[2] - text_bbox[0]
-    #     text_height = text_bbox[3] - text_bbox[1]
-        
-    #     # Draw text background and overlay
-    #     draw.rectangle([position, (position[0] + text_width, position[1] + text_height * 2)], fill=(255, 255, 255))
-    #     draw.text(position, text, fill=(0, 0, 0), font=font)
-
-    #     # Save the image
-    #     pil_img.save(output_path)
-    #     print(f"Saved: {output_path}")    
     
     def run(self):
         self.train_model()
