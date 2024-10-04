@@ -28,7 +28,7 @@ def main():
     )
 
     # Run the training and saving process
-    gaze_detection.run()
+    # gaze_detection.run()
     # model.predict_and_save_images('output/', 10)
     # model.predict_and_save_single_image("image.png", "not_focused")
 
