@@ -11,15 +11,11 @@ class VideoFrameExtraction:
     Methods:
         __init__(output_dir):
             Initializes the VideoFrameExtraction object with the given output directory and number of frames to extract.
-        extract_frames():
+        extract_frames(self, video_path, file_prefix):
             Extracts frames from the video file and saves them to the output directory.
-        get_video_info():
-            Returns information about the video, such as total number of frames, width, height, and FPS.
-        run():
-            Runs the frame extraction process.
     """
     
-    def __init__(self, output_dir="output_frames"):
+    def __init__(self, output_dir):
         """
         Initializes the VideoFrameExtraction object with the given output directory.
         
@@ -34,11 +30,15 @@ class VideoFrameExtraction:
     def extract_frames(self, video_path, file_prefix):
         """
         Extracts frames from the video file and saves them to the output directory.
+        
+        Args:
+            video_path (str): The path to the video file.
+            file_prefix (str): The prefix to use for the extracted frame filenames.
         """
         
         video = cv2.VideoCapture(video_path)
         total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        num_frames = int(total_frames * .05)
+        num_frames = int(total_frames * .02)
         frame_interval = total_frames // num_frames
         frame_number = 0
         saved_frame_count = 0
