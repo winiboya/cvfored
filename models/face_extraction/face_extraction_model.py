@@ -12,6 +12,10 @@ class FaceExtractionModel:
         if not os.path.isfile(caffe_model_path):
             raise FileNotFoundError(f"Caffe model file not found at {caffe_model_path}")
         
+        self.input_directory = input_directory
+
+        self.output_directory = output_directory
+
         # Load model
         self.opencv_dnn_model = cv2.dnn.readNetFromCaffe(prototxt=prototxt_path, caffeModel=caffe_model_path)
     
@@ -117,7 +121,7 @@ class FaceExtractionModel:
 
                     # save final face extraction
                     var +=1
-                    output_directory = "/Users/carolinazubler/Library/Mobile Documents/com~apple~CloudDocs/Documents/Yale/Senior Year/Fall 2024/CPSC 490/wini_data_2"
+                    output_directory = self.output_directory
                     os.makedirs(output_directory, exist_ok=True)
                     output_filename = f"{im}_{var}.jpg"
                     output_path = os.path.join(output_directory, output_filename)
@@ -128,8 +132,8 @@ class FaceExtractionModel:
 
             return initial_faces_count, final_faces_count
         
-    def run():
-        image_directory = "/Users/carolinazubler/Library/Mobile Documents/com~apple~CloudDocs/Documents/Yale/Senior Year/Fall 2024/CPSC 490/cvfored/src/face extraction/test data/images to analyze"
+    def run(self):
+        image_directory = self.input_directory
 
         # define image count variable
         var = 0
@@ -167,6 +171,8 @@ class FaceExtractionModel:
                     file.write(f"{var}\n")
                     file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
                     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
+
+                
 
             # if file is not image
             else:
