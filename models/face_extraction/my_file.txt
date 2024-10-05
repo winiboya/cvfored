@@ -140,3 +140,131 @@ IMG_8922.png: 1 faces detected after second pass.
 1
 IMG_8922.png: 1 faces detected after first pass.
 IMG_8922.png: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 8 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 8 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 7 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+Skipping non-image file: images-2.jpeg
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+images-2.jpeg: 7 faces detected after first pass.
+images-2.jpeg: 4 faces detected after second pass.
+2
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+small-crowd-clapping.jpg: 6 faces detected after first pass.
+small-crowd-clapping.jpg: 3 faces detected after second pass.
+2
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after first pass.
+woman-smiling-with-head-tilted-portrait-EXATB9.jpg: 1 faces detected after second pass.
+Skipping non-image file: IMG_8922.HEIC
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 38 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 12 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 38 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 10 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 13 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+BN-EN202_MINDMA_G_20140912134121.jpg: 10 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 9 faces detected after second pass.
+1
+gettyimages-200149285-004-612x612.jpg: 4 faces detected after first pass.
+gettyimages-200149285-004-612x612.jpg: 4 faces detected after second pass.
+1
+gettyimages-200149285-004-612x612.jpg: 79 faces detected after first pass.
+gettyimages-200149285-004-612x612.jpg: 48 faces detected after second pass.
+1
+gettyimages-200149285-004-612x612.jpg: 79 faces detected after first pass.
+gettyimages-200149285-004-612x612.jpg: 46 faces detected after second pass.
+1
+gettyimages-200149285-004-612x612.jpg: 28 faces detected after first pass.
+gettyimages-200149285-004-612x612.jpg: 20 faces detected after second pass.
+1
+gettyimages-200149285-004-612x612.jpg: 42 faces detected after first pass.
+gettyimages-200149285-004-612x612.jpg: 30 faces detected after second pass.
+1
+small-crowd-clapping.jpg: 6 faces detected after first pass.
+small-crowd-clapping.jpg: 3 faces detected after second pass.
+1
+small-crowd-clapping.jpg: 6 faces detected after first pass.
+small-crowd-clapping.jpg: 3 faces detected after second pass.
+1
+small-crowd-clapping.jpg: 6 faces detected after first pass.
+small-crowd-clapping.jpg: 4 faces detected after second pass.
