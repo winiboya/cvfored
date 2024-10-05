@@ -136,7 +136,7 @@ class FaceExtractionModel:
             return output_image, results, faces, faces_org, faces_count
         
 
-    def two_pass_face_detection(self, image, first_conf, second_conf, im):
+    def two_pass_face_detection(self, image, first_conf, second_conf, im, file_prefix):
 
         # run first pass of model on image
         final_image, output, extractions, extractions_org, face_count = self.cv_dnn_detect_faces(image, first_conf, display=False)
@@ -169,7 +169,7 @@ class FaceExtractionModel:
                     var +=1
                     output_directory = self.output_directory
                     os.makedirs(output_directory, exist_ok=True)
-                    output_filename = f"{im}_{var}.jpg"
+                    output_filename = f"{file_prefix}-face{var}.jpg"
                     output_path = os.path.join(output_directory, output_filename)
                     cv2.imwrite(output_path, i)
 
@@ -180,7 +180,7 @@ class FaceExtractionModel:
 
             return initial_faces_count, final_faces_count
         
-    def run(self):
+    def extract_faces(self, file_prefix):
         image_directory = self.input_directory
 
         # define image count variable
@@ -197,26 +197,23 @@ class FaceExtractionModel:
                 
                 if image is None:
 
-                    with open('my_file.txt', 'a') as file:
-                        file.write(f"Failed to load image: {file_path}\n")
+                    # with open('my_file.txt', 'a') as file:
+                    #     file.write(f"Failed to load image: {file_path}\n")
 
                     continue
 
                 var +=1
 
                 # use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var)
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, file_prefix)
                 
-                with open('my_file.txt', 'a') as file:
-                    file.write(f"{var}\n")
-                    file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
-                    file.write(f"{filename}: {final_count} faces detected after second pass.\n")
+                # with open('my_file.txt', 'a') as file:
+                #     file.write(f"{var}\n")
+                #     file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
+                #     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
                 
 
             # if file is not image
-            else:
-
-                with open('my_file.txt', 'a') as file:
-                    file.write(f"Skipping non-image file: {filename}\n")
+        
                 
