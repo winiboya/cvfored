@@ -7,10 +7,9 @@ class VideoFrameExtraction:
     
     Attributes:
         output_dir (str): The directory where extracted frames will be saved.
-        num_frames (int): The number of frames to extract.
         
     Methods:
-        __init__(output_dir, num_frames):
+        __init__(output_dir):
             Initializes the VideoFrameExtraction object with the given output directory and number of frames to extract.
         extract_frames():
             Extracts frames from the video file and saves them to the output directory.
@@ -20,16 +19,14 @@ class VideoFrameExtraction:
             Runs the frame extraction process.
     """
     
-    def __init__(self, output_dir="output_frames", num_frames=10):
+    def __init__(self, output_dir="output_frames"):
         """
-        Initializes the VideoFrameExtraction object with the given output directory and number of frames to extract.
+        Initializes the VideoFrameExtraction object with the given output directory.
         
         Args:
             output_dir (str): The directory where extracted frames will be saved.
-            num_frames (int): The number of frames to extract.
         """
         self.output_dir = output_dir
-        self.num_frames = num_frames
         
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
@@ -41,8 +38,8 @@ class VideoFrameExtraction:
         
         video = cv2.VideoCapture(video_path)
         total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        
-        frame_interval = total_frames // self.num_frames
+        num_frames = int(total_frames * .05)
+        frame_interval = total_frames // num_frames
         frame_number = 0
         saved_frame_count = 0
 
@@ -54,12 +51,12 @@ class VideoFrameExtraction:
                 break
                 
             if frame_number % frame_interval == 0:
-                frame_filename = f"{self.output_dir}/{file_prefix}-{saved_frame_count}.jpg"
+                frame_filename = os.path.join(self.output_dir, f"{file_prefix}-frame{saved_frame_count}.jpg")
                 cv2.imwrite(frame_filename, frame)
                 
                 saved_frame_count += 1
                 
-                if saved_frame_count >= self.num_frames:
+                if saved_frame_count >= num_frames:
                     break
                 
             frame_number += 1
@@ -68,35 +65,3 @@ class VideoFrameExtraction:
         cv2.destroyAllWindows()
         
         print(f"Extracted {saved_frame_count} frames from {video_path} to {self.output_dir}")
-   
-    # def get_video_info(self, video):
-    #     """
-    #     Returns information about the video, such as total number of frames, width, height, and FPS.
-        
-    #     Returns:
-    #         dict: A dictionary containing video information.
-    #     """
-        
-    #     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    #     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    #     fps = video.get(cv2.CAP_PROP_FPS)
-    #     return {
-    #         "total_frames": self.total_frames,
-    #         "width": width,
-    #         "height": height,
-    #         "fps": fps
-    #     }
-        
-    # def extract_frames_from_many_videos(self, video_paths):
-    #     """
-    #     Extracts frames from multiple video files and saves them to the output directory.
-        
-    #     Args:
-    #         video_paths (list): A list of video file paths.
-    #     """
-        
-    #     for video_path in video_paths:
-    #         self.video = cv2.VideoCapture(video_path)
-    #         self.total_frames = int(self.video.get(cv2.CAP_PROP_FRAME_COUNT))
-    #         self.extract_frames()
-        
