@@ -23,7 +23,7 @@ class GazeDetectionModel:
         model (tf.keras.Model): The gaze detection model.
         
     Methods:
-        __init__(model_path, train_data_path, batch_size, target_size, epochs):
+        __init__(model_path, train_data_path, validate_data_path, batch_size, target_size, epochs):
             Initializes the GazeDetectionModel with the specified parameters.
         load_or_create_model():
             Loads the saved model if it exists, otherwise creates a new model.
@@ -45,13 +45,14 @@ class GazeDetectionModel:
             Main function for running the training process.
     
     """
-    def __init__(self, model_path='gaze_detection_model.h5', train_data_path='../testdata/gaze/', batch_size=32, target_size=(224, 224), epochs=10):
+    def __init__(self, train_data_path, validate_data_path, model_path='gaze_detection_model.h5', batch_size=32, target_size=(224, 224), epochs=10):
         """
         Initializes the GazeDetectionModel with the specified parameters.
         
         Args:
             model_path (str): The path to the saved model file.
             train_data_path (str): The path to the directory containing training data.
+            validate_data_path (str): The path to the directory containing validation data.
             batch_size (int): The batch size for training.
             target_size (tuple): The target size for input images.
             epochs (int): The number of epochs to train the model.
@@ -59,6 +60,7 @@ class GazeDetectionModel:
         
         self.model_path = model_path
         self.train_data_path = train_data_path
+        self.validate_data_path = validate_data_path
         self.batch_size = batch_size
         self.target_size = target_size
         self.epochs = epochs
@@ -124,24 +126,23 @@ class GazeDetectionModel:
             width_shift_range=0.2,  # Shift images horizontally
             height_shift_range=0.2,  # Shift images vertically
             horizontal_flip=True,
-            brightness_range=[0.8, 1.2],  # Random brightness
-            validation_split=0.2
-        )
+            brightness_range=[0.8, 1.2],  # Random brightness        
+            )
 
         train_generator = train_datagen.flow_from_directory(
-            '../testdata/gaze/',
+            self.train_data_path,
             target_size=(224, 224),
-            batch_size=32,
+            batch_size=self.batch_size,
             class_mode='categorical',
-            subset='training'
         )
+        
+        validation_datagen = ImageDataGenerator(rescale=1./255)
 
-        validation_generator = train_datagen.flow_from_directory(
-            '../testdata/gaze/',
+        validation_generator = validation_datagen.flow_from_directory(
+            self.validate_data_path,
             target_size=(224, 224),
             batch_size=32,
             class_mode='categorical',
-            subset='validation'
         )
         return train_generator, validation_generator
 
@@ -263,6 +264,7 @@ def main():
     gaze_detection = GazeDetectionModel(
         model_path='gaze_detection_model.h5',
         train_data_path='../testdata/gaze/',
+        validate_data_path='../testdata/gaze/',
         batch_size=32,
         target_size=(224, 224),
         epochs=10
