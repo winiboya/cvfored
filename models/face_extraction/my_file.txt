@@ -125,3 +125,18 @@ Skipping non-image file: .DS_Store
 42
 273275-106af1000c21b9673_jpg.rf.a138f7185966d15c1e36e26c16f666d1.jpg: 10 faces detected after first pass.
 273275-106af1000c21b9673_jpg.rf.a138f7185966d15c1e36e26c16f666d1.jpg: 7 faces detected after second pass.
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
+1
+IMG_8922.png: 1 faces detected after first pass.
+IMG_8922.png: 1 faces detected after second pass.
