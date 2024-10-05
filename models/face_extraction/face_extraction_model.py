@@ -44,6 +44,11 @@ class FaceExtractionModel:
         if not os.path.isfile(caffe_model_path):
             raise FileNotFoundError(f"Caffe model file not found at {caffe_model_path}")
         
+        self.input_directory = input_directory
+
+        self.output_directory = output_directory
+
+        # Load model
         self.opencv_dnn_model = cv2.dnn.readNetFromCaffe(prototxt=prototxt_path, caffeModel=caffe_model_path)
         self.input_directory = input_directory
         self.output_directory = output_directory
@@ -76,6 +81,7 @@ class FaceExtractionModel:
         results = self.opencv_dnn_model.forward()    
 
         faces = []
+        faces_org = []
 
         faces_count = 0
 
@@ -89,19 +95,31 @@ class FaceExtractionModel:
 
                 bbox = face[3:]
 
-                x1 = int(bbox[0] * image_width)
-                y1 = int(bbox[1] * image_height)
-                x2 = int(bbox[2] * image_width)
-                y2 = int(bbox[3] * image_height)
+                x1 = int((bbox[0] * image_width * 0.95))
+                y1 = int((bbox[1] * image_height * 0.95))
+                x2 = int((bbox[2] * image_width * 1.05))
+                y2 = int((bbox[3] * image_height * 1.05))
 
-                cv2.rectangle(output_image, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 0), thickness=image_width//200)
+                x1a = int((bbox[0] * image_width))
+                y1a = int((bbox[1] * image_height))
+                x2a = int((bbox[2] * image_width))
+                y2a = int((bbox[3] * image_height))
+
+                cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
 
                 cropped_img = image[y1:y2, x1:x2]
+
+                cropped_img_org = image[y1a:y2a, x1a:x2a]
 
                 if not (cropped_img is None or cropped_img.size == 0):
 
                     faces.append(cropped_img)
 
+                if not (cropped_img_org is None or cropped_img_org.size == 0):
+    
+                    faces_org.append(cropped_img_org)
+
+        # if display flag on:
         if display:
 
             plt.figure(figsize=[20,20])
@@ -109,31 +127,22 @@ class FaceExtractionModel:
             plt.subplot(122);plt.imshow(output_image[:,:,::-1]);plt.title("Output");plt.axis('off')
             plt.show()
 
-            return output_image, results, faces, faces_count
+            # return input image with boxes, model results, list of extractions, list of very cropped extractions, and count of faces
+            return output_image, results, faces, faces_org, faces_count
 
         else:
 
-            return output_image, results, faces, faces_count
+            # return input image with boxes, model results, list of extractions, list of very cropped extractions, and count of faces
+            return output_image, results, faces, faces_org, faces_count
         
 
-    def two_pass_face_detection(self, image, first_conf, second_conf, im, file_prefix):
-        """
-        Detects faces in the given image using two passes with different confidence levels.
-        
-        Args:
-            image (numpy.ndarray): The input image in BGR format.
-            first_conf (float): The minimum confidence level for the first pass.
-            second_conf (float): The minimum confidence level for the second pass.
-            im (int): The image number for saving extracted faces.
-            
-        Returns:
-            initial_faces_count (int): The number of faces detected after the first pass.
-            final_faces_count (int): The number of faces detected after the second pass.
-        """
+    def two_pass_face_detection(self, image, first_conf, second_conf, im):
 
-        final_image, output, extractions, face_count = self.cv_dnn_detect_faces(image, first_conf, display=False)
+        # run first pass of model on image
+        final_image, output, extractions, extractions_org, face_count = self.cv_dnn_detect_faces(image, first_conf, display=False)
 
-        initial_faces_count = len(extractions)
+        # determine number of faces after initial pass
+        initial_faces_count = len(extractions_org)
 
         if initial_faces_count == 0:
 
@@ -143,36 +152,45 @@ class FaceExtractionModel:
 
             final = []
             var = 0
+            count = 0
 
-            for i in extractions:
-                if self.cv_dnn_detect_faces(i, second_conf, display=False)[3] > 0:
+            for i in extractions_org:
+                if self.cv_dnn_detect_faces(i, second_conf, display=False)[4] > 0:
 
-                    final.append(i)
-                    
+                    # add face extraction to final
+                    final.append(extractions[count])
+
+                    ## show final extraction
+                    # plt.imshow(i)
+                    # plt.axis('off')
+                    # plt.show()
+
+                    # save final face extraction
                     var +=1
-                    os.makedirs(self.output_directory, exist_ok=True)
-                    output_filename = f"{file_prefix}-{im}_face-{var}.jpg"
-                    output_path = os.path.join(self.output_directory, output_filename)
+                    output_directory = self.output_directory
+                    os.makedirs(output_directory, exist_ok=True)
+                    output_filename = f"{im}_{var}.jpg"
+                    output_path = os.path.join(output_directory, output_filename)
                     cv2.imwrite(output_path, i)
 
+                    count +=1
+
+            # determine and final number of faces
             final_faces_count = len(final)
 
             return initial_faces_count, final_faces_count
         
-    def extract_faces(self, file_prefix):
-        """
-        Runs the face extraction process on all images in the input directory.
-        
-        Args:
-            file_prefix (str): The prefix to use for the output image filenames.
-        """
-        
+    def run(self):
+        image_directory = self.input_directory
+
+        # define image count variable
         var = 0
 
         for filename in os.listdir(self.input_directory):
 
+            # if file is image:
             if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
-
+    
                 file_path = os.path.join(self.input_directory, filename)
                 
                 image = cv2.imread(file_path)
@@ -186,13 +204,17 @@ class FaceExtractionModel:
 
                 var +=1
 
-                initial_count, final_count = self.two_pass_face_detection(image, 0.13, 0.99, var, file_prefix)
+                # use image as input
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var)
                 
                 with open('my_file.txt', 'a') as file:
                     file.write(f"{var}\n")
                     file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
                     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
+                
+
+            # if file is not image
             else:
 
                 with open('my_file.txt', 'a') as file:
