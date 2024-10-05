@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import os
+import argparse
 
 class GazeDetectionModel:
     """
@@ -259,12 +260,19 @@ def main():
     """
     Main function for running the training process.
     """
+    
+    parser = argparse.ArgumentParser(description="Train the gaze detection model.")
+
+    parser.add_argument("--model_path", type=str, default='gaze_detection_model.h5', help="Path to save the trained model.")
+    parser.add_argument("--train_data_path", type=str, required=True, help="Path to the directory containing training data.")
+    parser.add_argument("--validate_data_path", type=str, required=True, help="Path to the directory containing validation data.")
         
+    args = parser.parse_args()
     # Initialize the model with desired parameters
     gaze_detection = GazeDetectionModel(
-        model_path='gaze_detection_model.h5',
-        train_data_path='../testdata/gaze/',
-        validate_data_path='../testdata/gaze/',
+        model_path=args.model_path,
+        train_data_path=args.train_data_path,
+        validate_data_path=args.validate_data_path,
         batch_size=32,
         target_size=(224, 224),
         epochs=10

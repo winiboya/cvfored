@@ -1,5 +1,6 @@
 import sys
 import os
+import argparse
 
 sys.path.insert(0, '../models/gaze_detection')
 sys.path.insert(0, '../models/face_extraction')
@@ -72,11 +73,14 @@ class TestDataExtraction:
 
 
 def main():
-    input_dir = "small_vids"
-    frame_output_dir = "output_frames"
-    face_output_dir = "output_faces"
+    parser = argparse.ArgumentParser(description="Extract frames and faces from video files.")
+    parser.add_argument("--input_dir", type=str, required=True, help="Directory containing the input video files.")
+    parser.add_argument("--frame_output_dir", type=str, required=True, help="Directory where extracted frames will be saved.")
+    parser.add_argument("--face_output_dir", type=str, required=True, help="Directory where extracted faces will be saved.")
+
+    args = parser.parse_args()
     
-    data_extraction = TestDataExtraction(input_dir, frame_output_dir, face_output_dir)
+    data_extraction = TestDataExtraction(args.input_dir, args.frame_output_dir, args.face_output_dir)
     data_extraction.extract_frames()
     data_extraction.extract_faces()
     
