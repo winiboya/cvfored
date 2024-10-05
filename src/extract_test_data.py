@@ -1,7 +1,3 @@
-# import both classes
-# call extract frame in a loop, store
-# pass the extracted frame to face extraction model
-# output faces into another dir
 import sys
 import os
 
@@ -12,33 +8,71 @@ sys.path.insert(0, '../utils')
 from face_extraction_model import FaceExtractionModel
 from video_frame_extraction import VideoFrameExtraction
 
-def main():
+# class TestDataExtraction:
+#     def __init__(self, input_dir, frame_output_dir,face_output_dir):
+#         self.input_dir = input_dir
+#         self.frame_output_dir = output_dir
+#         self.face_output_dir = "extracted_faces"
+        
+#         if not os.path.exists(self.output_dir):
+#             os.makedirs(self.output_dir)
+            
+#     def extract_test_data(self):
+#         video_frame_extraction = VideoFrameExtraction(self.output_dir)
+        
+#         face_extraction = FaceExtractionModel(
+#             prototxt_path="../models/face_extraction/deploy.prototxt", 
+#             caffe_model_path="../models/face_extraction/res10_300x300_ssd_iter_140000.caffemodel", 
+#             input_directory=f"{self.output_dir}/", 
+#             output_directory="extracted_faces"
+#         )
+        
+#         count = 1
+#         for filename in os.listdir(self.input_dir):
+#             if filename.endswith(".MOV"):
+#                 video_path = os.path.join(f"{self.input_dir}/", filename)
+                
+#             video_frame_extraction.extract_frames(video_path, "video" + str(count))
+            
+#             count += 1
+            
+#         for filename in os.listdir("extracted_frames"):
+#             if filename.endswith(".jpg"):
+#                 file_prefix = filename[:-4]
+#                 face_extraction.extract_faces(file_prefix)
+                
+#         print("DONE")
 
-    output_dir = "input"
-    video_frame_extraction = VideoFrameExtraction(output_dir, 5)
+def main():
+    input_dir = "smallvideos"
+    output_dir = "extracted_frames"
+    
+    video_frame_extraction = VideoFrameExtraction(output_dir)
     
     face_extraction = FaceExtractionModel(
             prototxt_path="../models/face_extraction/deploy.prototxt", 
             caffe_model_path="../models/face_extraction/res10_300x300_ssd_iter_140000.caffemodel", 
-            input_directory="input/", 
-            output_directory="output"
+            input_directory=output_dir, 
+            output_directory="extracted_faces"
         )
     
     # loop over videos/ directory and call frame extraction then face extraction for each video
     count = 1
-    for filename in os.listdir("test_videos"):
+    for filename in os.listdir(input_dir):
         
     
         if filename.endswith(".MOV"):
-            video_path = os.path.join("test_videos/", filename)
+            video_path = os.path.join(input_dir, filename)
     
         video_frame_extraction.extract_frames(video_path, "video" + str(count))
         
-        face_extraction.extract_faces("video" + str(count))
         
         count += 1
 
-
+    for filename in os.listdir("extracted_frames"):
+        if filename.endswith(".jpg"):
+            file_prefix = filename[:-4]
+            face_extraction.extract_faces(file_prefix)
 
     
     print("DONE")
