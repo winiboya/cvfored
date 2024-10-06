@@ -9,19 +9,71 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import os
-
-
+import argparse
 
 class GazeDetectionModel:
-    def __init__(self, model_path='gaze_detection_model.h5', train_data_path='../testdata/gaze/', batch_size=32, target_size=(224, 224), epochs=10):
+    """
+    A class for training and using a gaze detection model based on a pre-trained ResNet50 model.
+    
+    Attributes:
+        model_path (str): The path to the saved model file.
+        train_data_path (str): The path to the directory containing training data.
+        batch_size (int): The batch size for training.
+        target_size (tuple): The target size for input images.
+        epochs (int): The number of epochs to train the model.
+        model (tf.keras.Model): The gaze detection model.
+        
+    Methods:
+        __init__(model_path, train_data_path, validate_data_path, batch_size, target_size, epochs):
+            Initializes the GazeDetectionModel with the specified parameters.
+        load_or_create_model():
+            Loads the saved model if it exists, otherwise creates a new model.
+        create_model():
+            Creates a new gaze detection model based on a pre-trained ResNet50 model.
+        create_data_generators():
+            Creates data generators for loading and augmenting training data.
+        train_model():
+            Trains the gaze detection model using the training data.
+        save_model():
+            Saves the trained model to a file.
+        save_correct_predictions(generator, output_dir, num_images):
+            Saves images that the model correctly classified with true and predicted labels as overlay text.
+        predict_and_save_images(output_dir, num_images):
+            Predicts and saves a specified number of correctly classified images with labels.
+        run():
+            Runs the training process for the gaze detection model.
+        main():
+            Main function for running the training process.
+    
+    """
+    def __init__(self, train_data_path, validate_data_path, model_path='gaze_detection_model.h5', batch_size=32, target_size=(224, 224), epochs=10):
+        """
+        Initializes the GazeDetectionModel with the specified parameters.
+        
+        Args:
+            model_path (str): The path to the saved model file.
+            train_data_path (str): The path to the directory containing training data.
+            validate_data_path (str): The path to the directory containing validation data.
+            batch_size (int): The batch size for training.
+            target_size (tuple): The target size for input images.
+            epochs (int): The number of epochs to train the model.
+        """
+        
         self.model_path = model_path
         self.train_data_path = train_data_path
+        self.validate_data_path = validate_data_path
         self.batch_size = batch_size
         self.target_size = target_size
         self.epochs = epochs
         self.model = self.load_or_create_model()
         
     def load_or_create_model(self):
+        """
+        Loads the saved model if it exists, otherwise creates a new model.
+        
+        Returns:
+            tf.keras.Model: The gaze detection model.
+        """
         if os.path.exists(self.model_path):
             print(f"Loading saved model from {self.model_path}")
             return load_model(self.model_path)
@@ -30,6 +82,12 @@ class GazeDetectionModel:
             return self.create_model()
         
     def create_model(self):
+        """
+        Creates a new gaze detection model based on a pre-trained ResNet50 model.
+        
+        Returns:
+            tf.keras.Model: The gaze detection model.
+        """
         # Load the pre-trained model (excluding the top classification layer)
         base_model = ResNet50(weights='imagenet', include_top=False)
 
@@ -53,6 +111,13 @@ class GazeDetectionModel:
         return model
 
     def create_data_generators(self):
+        """
+        Creates data generators for loading and augmenting training data.
+        
+        Returns:
+            ImageDataGenerator: The training data generator.
+            ImageDataGenerator: The validation data generator.
+        """
     
         train_datagen = ImageDataGenerator(
             rescale=1./255,
@@ -62,28 +127,30 @@ class GazeDetectionModel:
             width_shift_range=0.2,  # Shift images horizontally
             height_shift_range=0.2,  # Shift images vertically
             horizontal_flip=True,
-            brightness_range=[0.8, 1.2],  # Random brightness
-            validation_split=0.2
-        )
+            brightness_range=[0.8, 1.2],  # Random brightness        
+            )
 
         train_generator = train_datagen.flow_from_directory(
-            '../testdata/gaze/',
+            self.train_data_path,
             target_size=(224, 224),
-            batch_size=32,
+            batch_size=self.batch_size,
             class_mode='categorical',
-            subset='training'
         )
+        
+        validation_datagen = ImageDataGenerator(rescale=1./255)
 
-        validation_generator = train_datagen.flow_from_directory(
-            '../testdata/gaze/',
+        validation_generator = validation_datagen.flow_from_directory(
+            self.validate_data_path,
             target_size=(224, 224),
             batch_size=32,
             class_mode='categorical',
-            subset='validation'
         )
         return train_generator, validation_generator
 
     def train_model(self):
+        """ 
+        Trains the gaze detection model using the training data.
+        """
         train_generator, validation_generator = self.create_data_generators()
         self.model.fit(
             train_generator,
@@ -94,6 +161,9 @@ class GazeDetectionModel:
         )
     
     def save_model(self):
+        """
+        Saves the trained model to a file.
+        """
         self.model.save(self.model_path)
         print(f"Model saved to {self.model_path}")
         
@@ -101,10 +171,10 @@ class GazeDetectionModel:
         """
         Saves images that the model correctly classified with true and predicted labels as overlay text.
         
-        Parameters:
-        - generator: ImageDataGenerator for data loading and augmentation.
-        - output_dir: Directory where labeled images will be saved.
-        - num_images: Number of images to save.
+        Args:
+            generator (ImageDataGenerator): The data generator to use for prediction.
+            output_dir (str): The directory to save the images.
+            num_images (int): The number of images to save.
         """
         # Create output directory if it doesn't exist
         if not os.path.exists(output_dir):
@@ -166,15 +236,50 @@ class GazeDetectionModel:
             print(f"Saved: {image_filename}")
     
     def predict_and_save_images(self, output_dir='correct_predictions', num_images=5):
+        """
+        Predicts and saves a specified number of correctly classified images with labels.
+        
+        Args:
+            output_dir (str): The directory to save the images.
+            num_images (int): The number of images to save.
+        """
         print("Predicting and saving correct images...")
         _, validation_generator = self.create_data_generators()
         self.save_correct_predictions(validation_generator, output_dir, num_images)
         
     
     def run(self):
+        """
+        Runs the training process for the gaze detection model.
+        """
         self.train_model()
         self.save_model()
         print("Training complete!")
 
+def main():
+    """
+    Main function for running the training process.
+    """
+    
+    parser = argparse.ArgumentParser(description="Train the gaze detection model.")
 
+    parser.add_argument("--model_path", type=str, default='gaze_detection_model.h5', help="Path to save the trained model.")
+    parser.add_argument("--train_data_path", type=str, required=True, help="Path to the directory containing training data.")
+    parser.add_argument("--validate_data_path", type=str, required=True, help="Path to the directory containing validation data.")
+        
+    args = parser.parse_args()
+    # Initialize the model with desired parameters
+    gaze_detection = GazeDetectionModel(
+        model_path=args.model_path,
+        train_data_path=args.train_data_path,
+        validate_data_path=args.validate_data_path,
+        batch_size=32,
+        target_size=(224, 224),
+        epochs=10
+    )
 
+    # Run the training and saving process
+    gaze_detection.run()
+    
+if __name__ == '__main__':
+    main()

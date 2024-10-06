@@ -4,9 +4,41 @@ import dlib
 from time import time
 import matplotlib.pyplot as plt
 
+
 class FaceExtractionModel:
+    """
+    A class for extracting faces from images using a pre-trained Caffe model.
+
+    Attributes:
+        opencv_dnn_model (cv2.dnn_Net): The OpenCV DNN model loaded from the provided prototxt and Caffe model files.
+
+    Methods:
+        __init__(prototxt_path, caffe_model_path, input_directory, output_directory):
+            Initializes the FaceExtractionModel with the given paths to the prototxt and Caffe model files, 
+            as well as the input and output directories.
+        cv_dnn_detect_faces(image, min_confidence, display=True):
+            Detects faces in the given image using the OpenCV DNN model with the specified minimum confidence level.
+        two_pass_face_detection(image, first_conf, second_conf, im):
+            Detects faces in the given image using two passes with different confidence levels.
+        extract_faces():
+            Runs the face extraction process on all images in the input directory.
+    """
+    
     def __init__(self, prototxt_path, caffe_model_path, input_directory, output_directory):
-        # Verify model files
+        """
+        Initializes the FaceExtractionModel with the given paths to the prototxt and Caffe model files, 
+        as well as the input and output directories.
+            
+        Args:
+            prototxt_path (str): The path to the prototxt file for the Caffe model.
+            caffe_model_path (str): The path to the Caffe model file.
+            input_directory (str): The path to the directory containing input images.
+            output_directory (str): The path to the directory where extracted faces will be saved.
+            
+        Raises:
+            FileNotFoundError: If the prototxt or Caffe model file is not found.
+        """
+    
         if not os.path.isfile(prototxt_path):
             raise FileNotFoundError(f"Prototxt file not found at {prototxt_path}")
         if not os.path.isfile(caffe_model_path):
@@ -18,43 +50,49 @@ class FaceExtractionModel:
 
         # Load model
         self.opencv_dnn_model = cv2.dnn.readNetFromCaffe(prototxt=prototxt_path, caffeModel=caffe_model_path)
+        self.input_directory = input_directory
+        self.output_directory = output_directory
     
     def cv_dnn_detect_faces(self, image, min_confidence, display = True):
+        """
+        Detects faces in the given image using the OpenCV DNN model with the specified minimum confidence level.
+
+        Args:
+            image (numpy.ndarray): The input image in BGR format.
+            min_confidence (float): The minimum confidence level for face detection.
+            display (bool): Whether to display the input image with detected faces.
         
-        # determine image height and width
+        Returns:
+            output_image (numpy.ndarray): The input image with boxes drawn around detected faces.
+            results (numpy.ndarray): The results of the face detection model.
+            faces (list): A list of extracted face images.
+            faces_count (int): The number of faces detected in the
+        """
+        
         image_height, image_width, _ = image.shape
 
-        # copy image for writing on
         output_image = image.copy()
 
-        # preprocess image
         preprocessed_image = cv2.dnn.blobFromImage(image, scalefactor=1.0, size=(300, 300),
                                                 mean=(104.0, 117.0, 123.0), swapRB=False, crop=False)
 
-        # run model on preprocessed image
         self.opencv_dnn_model.setInput(preprocessed_image)
 
         results = self.opencv_dnn_model.forward()    
 
-        # initialize extractions list and faces count
         faces = []
         faces_org = []
 
         faces_count = 0
 
-        # iterate through faces found
         for face in results[0][0]:
             
-            # check confidence level
             face_confidence = face[2]
             
-            # if confidence level adequate:
             if face_confidence > min_confidence:
 
-                # add face to count
                 faces_count += 1
 
-                # draw box around face in output_image
                 bbox = face[3:]
 
                 x1a = int((bbox[0] * image_width))
@@ -73,7 +111,6 @@ class FaceExtractionModel:
 
                 cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
 
-                # extract face and add to extractions list
                 cropped_img = image[y1:y2, x1:x2]
 
                 cropped_img_org = image[y1a:y2a, x1a:x2a]
@@ -83,13 +120,12 @@ class FaceExtractionModel:
                     faces.append(cropped_img)
 
                 if not (cropped_img_org is None or cropped_img_org.size == 0):
-
+    
                     faces_org.append(cropped_img_org)
 
         # if display flag on:
         if display:
 
-            # display input image with and without boxes       
             plt.figure(figsize=[20,20])
             plt.subplot(121);plt.imshow(image[:,:,::-1]);plt.title("Original Image");plt.axis('off')
             plt.subplot(122);plt.imshow(output_image[:,:,::-1]);plt.title("Output");plt.axis('off')
@@ -98,14 +134,13 @@ class FaceExtractionModel:
             # return input image with boxes, model results, list of extractions, list of very cropped extractions, and count of faces
             return output_image, results, faces, faces_org, faces_count
 
-        # if display flag off:   
         else:
 
             # return input image with boxes, model results, list of extractions, list of very cropped extractions, and count of faces
             return output_image, results, faces, faces_org, faces_count
         
 
-    def two_pass_face_detection(self, image, first_conf, second_conf, im):
+    def two_pass_face_detection(self, image, first_conf, second_conf, im, file_prefix):
 
         # run first pass of model on image
         final_image, output, extractions, extractions_org, face_count = self.cv_dnn_detect_faces(image, first_conf, display=False)
@@ -113,12 +148,10 @@ class FaceExtractionModel:
         # determine number of faces after initial pass
         initial_faces_count = len(extractions_org)
 
-        # if no initial faces found, return 0
         if initial_faces_count == 0:
 
             return 0, 0
 
-        # if faces found, run second pass
         else:
 
             final = []
@@ -140,7 +173,7 @@ class FaceExtractionModel:
                     var +=1
                     output_directory = self.output_directory
                     os.makedirs(output_directory, exist_ok=True)
-                    output_filename = f"{im}_{var}.jpg"
+                    output_filename = f"{file_prefix}-face{var}.jpg"
                     output_path = os.path.join(output_directory, output_filename)
                     cv2.imwrite(output_path, extractions[count])
 
@@ -151,52 +184,40 @@ class FaceExtractionModel:
 
             return initial_faces_count, final_faces_count
         
-    def run(self):
+    def extract_faces(self, file_prefix):
         image_directory = self.input_directory
 
         # define image count variable
         var = 0
 
-        # iterate through image directory
-        for filename in os.listdir(image_directory):
+        for filename in os.listdir(self.input_directory):
 
             # if file is image:
             if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
-
-                # determine image path
-                file_path = os.path.join(image_directory, filename)
+    
+                file_path = os.path.join(self.input_directory, filename)
                 
-                # read image
                 image = cv2.imread(file_path)
                 
-                # if image fails to load:
                 if image is None:
 
-                    # write error message
-                    with open('my_file.txt', 'a') as file:
-                        file.write(f"Failed to load image: {file_path}\n")
+                    # with open('my_file.txt', 'a') as file:
+                    #     file.write(f"Failed to load image: {file_path}\n")
 
-                    # move to next file
                     continue
 
-                # increase image count variable
                 var +=1
 
                 # use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var)
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, file_prefix)
                 
-                # write face counts to file
-                with open('my_file.txt', 'a') as file:
-                    file.write(f"{var}\n")
-                    file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
-                    file.write(f"{filename}: {final_count} faces detected after second pass.\n")
+                # with open('my_file.txt', 'a') as file:
+                #     file.write(f"{var}\n")
+                #     file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
+                #     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
                 
 
             # if file is not image
-            else:
-
-                # write error message
-                with open('my_file.txt', 'a') as file:
-                    file.write(f"Skipping non-image file: {filename}\n")
+        
                 
