@@ -57,15 +57,19 @@ class FaceExtractionModel:
                 # draw box around face in output_image
                 bbox = face[3:]
 
-                x1 = int((bbox[0] * image_width * 0.95))
-                y1 = int((bbox[1] * image_height * 0.95))
-                x2 = int((bbox[2] * image_width * 1.05))
-                y2 = int((bbox[3] * image_height * 1.05))
-
                 x1a = int((bbox[0] * image_width))
                 y1a = int((bbox[1] * image_height))
                 x2a = int((bbox[2] * image_width))
                 y2a = int((bbox[3] * image_height))
+
+                fourth_face_width_over_two = int((x2a - x1a)/6)
+                fourth_face_height_over_two = int((y1a - y2a)/6)
+
+                x1 = x1a - fourth_face_width_over_two
+                y1 = y1a + fourth_face_height_over_two
+                x2 = x2a + fourth_face_width_over_two
+                y2 = y2a - fourth_face_height_over_two
+
 
                 cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
 
@@ -138,7 +142,7 @@ class FaceExtractionModel:
                     os.makedirs(output_directory, exist_ok=True)
                     output_filename = f"{im}_{var}.jpg"
                     output_path = os.path.join(output_directory, output_filename)
-                    cv2.imwrite(output_path, i)
+                    cv2.imwrite(output_path, extractions[count])
 
                     count +=1
 

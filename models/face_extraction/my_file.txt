@@ -268,3 +268,54 @@ small-crowd-clapping.jpg: 3 faces detected after second pass.
 1
 small-crowd-clapping.jpg: 6 faces detected after first pass.
 small-crowd-clapping.jpg: 4 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+IMG_4665.jpg: 1 faces detected after first pass.
+IMG_4665.jpg: 1 faces detected after second pass.
+1
+images-2.jpeg: 6 faces detected after first pass.
+images-2.jpeg: 5 faces detected after second pass.
+2
+BN-EN202_MINDMA_G_20140912134121.jpg: 15 faces detected after first pass.
+BN-EN202_MINDMA_G_20140912134121.jpg: 11 faces detected after second pass.
