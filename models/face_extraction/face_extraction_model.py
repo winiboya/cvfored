@@ -99,14 +99,16 @@ class FaceExtractionModel:
                 y1a = int((bbox[1] * image_height))
                 x2a = int((bbox[2] * image_width))
                 y2a = int((bbox[3] * image_height))
+                
+                padding_factor = 2
 
-                fourth_face_width_over_two = int((x2a - x1a)/6)
-                fourth_face_height_over_two = int((y1a - y2a)/6)
+                face_width_padding = int((x2a - x1a)/padding_factor)
+                face_height_padding = int((y1a - y2a)/padding_factor)
 
-                x1 = x1a - fourth_face_width_over_two
-                y1 = y1a + fourth_face_height_over_two
-                x2 = x2a + fourth_face_width_over_two
-                y2 = y2a - fourth_face_height_over_two
+                x1 = x1a - face_width_padding
+                y1 = y1a + face_height_padding
+                x2 = x2a + face_width_padding
+                y2 = y2a - face_height_padding
 
 
                 cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
@@ -160,7 +162,7 @@ class FaceExtractionModel:
 
             for i in extractions_org:
                 if self.cv_dnn_detect_faces(i, second_conf, display=False)[4] > 0:
-
+                        
                     # add face extraction to final
                     final.append(extractions[count])
 
@@ -177,7 +179,7 @@ class FaceExtractionModel:
                     output_path = os.path.join(output_directory, output_filename)
                     cv2.imwrite(output_path, extractions[count])
 
-                    count +=1
+                count +=1
 
             # determine and final number of faces
             final_faces_count = len(final)
@@ -185,6 +187,7 @@ class FaceExtractionModel:
             return initial_faces_count, final_faces_count
         
     def extract_faces(self, file_prefix):
+        
         image_directory = self.input_directory
 
         # define image count variable
@@ -207,9 +210,11 @@ class FaceExtractionModel:
                     continue
 
                 var +=1
-
+            
                 # use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, file_prefix)
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, filename)
+                
+                print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
                 # with open('my_file.txt', 'a') as file:
                 #     file.write(f"{var}\n")

@@ -19,7 +19,7 @@ brew install ffmpeg
 ## Extracting Test Data
 ```
 cd src
-python extract_test_data.py --input_dir "small_vids" --frame_output_dir "output_frames" --face_output_dir "output_faces"
+python extract_test_data.py --input_dir "input_dir" --frame_output_dir "output_frames" --face_output_dir "output_faces"
 ```
 
 ## Training the Model

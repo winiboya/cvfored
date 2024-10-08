@@ -8,3 +8,7 @@ output_frames/
 test_videos/
 val_videos/
 videos
+
+output_frames/
+output_faces/
+test_faces/
