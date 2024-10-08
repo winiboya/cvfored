@@ -109,6 +109,16 @@ class FaceExtractionModel:
                 y1 = y1a + face_height_padding
                 x2 = x2a + face_width_padding
                 y2 = y2a - face_height_padding
+                
+                x1 = max(0, min(x1, image_width))
+                y1 = max(0, min(y1, image_height))
+                x2 = max(0, min(x2, image_width))
+                y2 = max(0, min(y2, image_height))
+
+                x1a = max(0, min(x1a, image_width))
+                y1a = max(0, min(y1a, image_height))
+                x2a = max(0, min(x2a, image_width))
+                y2a = max(0, min(y2a, image_height))
 
 
                 cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
@@ -161,6 +171,8 @@ class FaceExtractionModel:
 
             for i in extractions_org:
                 if self.cv_dnn_detect_faces(i, second_conf, display=False)[4] > 0:
+                    
+                    print(f"Count: {count}, extractions: {len(extractions)}, extractions_org: {len(extractions_org)}")
 
                         
                     # add face extraction to final
@@ -185,7 +197,7 @@ class FaceExtractionModel:
 
             return initial_faces_count, final_faces_count
         
-    def extract_faces(self, file_prefix):
+    def extract_faces(self):
         
         image_directory = self.input_directory
 
