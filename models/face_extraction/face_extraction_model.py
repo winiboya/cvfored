@@ -157,11 +157,11 @@ class FaceExtractionModel:
         else:
 
             final = []
-            var = 0
             count = 0
 
             for i in extractions_org:
                 if self.cv_dnn_detect_faces(i, second_conf, display=False)[4] > 0:
+
                         
                     # add face extraction to final
                     final.append(extractions[count])
@@ -172,14 +172,13 @@ class FaceExtractionModel:
                     # plt.show()
 
                     # save final face extraction
-                    var +=1
                     output_directory = self.output_directory
                     os.makedirs(output_directory, exist_ok=True)
-                    output_filename = f"{file_prefix}-face{var}.jpg"
+                    output_filename = f"{file_prefix}-face{count + 1}.jpg"
                     output_path = os.path.join(output_directory, output_filename)
                     cv2.imwrite(output_path, extractions[count])
 
-                count +=1
+                    count +=1
 
             # determine and final number of faces
             final_faces_count = len(final)
@@ -210,7 +209,7 @@ class FaceExtractionModel:
                     continue
 
                 var +=1
-            
+
                 # use image as input
                 initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, filename)
                 
