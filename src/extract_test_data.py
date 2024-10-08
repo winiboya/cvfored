@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
     
     data_extraction = TestDataExtraction(args.input_dir, args.frame_output_dir, args.face_output_dir)
-    data_extraction.extract_frames()
+    # data_extraction.extract_frames()
     data_extraction.extract_faces()
     
 if __name__ == "__main__":
