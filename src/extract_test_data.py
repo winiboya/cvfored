@@ -65,10 +65,11 @@ class TestDataExtraction:
         """
         Uses the FaceExtractionModel class to extract faces from the extracted frames.
         """
-        for filename in os.listdir(self.frame_output_dir):
-            if filename.endswith(".jpg"):
-                file_prefix = filename[:-4]
-                self.face_extraction.extract_faces(file_prefix)
+        # for filename in os.listdir(self.frame_output_dir):
+        #     if filename.endswith(".jpg"):
+        #         file_prefix = filename[:-4]
+        #         self.face_extraction.extract_faces(file_prefix)
+        self.face_extraction.extract_faces()
     
 
 
