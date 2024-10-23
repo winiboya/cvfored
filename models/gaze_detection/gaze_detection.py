@@ -3,10 +3,15 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
 import numpy as np
 from itertools import cycle
+from sklearn.metrics import classification_report
+from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.applications import ResNet50
 
 from tensorflow.keras.models import Model, load_model, Sequential
 from tensorflow.keras.layers import (
@@ -16,6 +21,7 @@ from tensorflow.keras.layers import (
     Dense,
     Dropout,
     BatchNormalization,
+    GlobalAveragePooling2D
 )
 import matplotlib.pyplot as plt
 
@@ -56,41 +62,56 @@ class GazeDetectionModel:
 
         else:
 
-            model = tf.keras.models.Sequential()
+            base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
-            # Layer 1
-            model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(224, 224, 3)))
-            model.add(BatchNormalization())
-            model.add(MaxPool2D(2, 2))
+            base_model.trainable = False
+            
+            for layer in base_model.layers[-10:]:
+                layer.trainable = True
 
-            # Layer 2
-            model.add(Conv2D(64, (3, 3), activation="relu"))
-            model.add(BatchNormalization())
-            model.add(MaxPool2D(2, 2))
+            model = Sequential([
+                base_model,
+                GlobalAveragePooling2D(),
+                BatchNormalization(),
+                Dense(1024, activation="relu", kernel_regularizer=l2(0.01)),
+                Dropout(0.5),
+                Dense(1, activation="sigmoid") #updated
+                
+            ])
 
-            # Layer 3
-            model.add(Conv2D(128, (3, 3), activation="relu"))
-            model.add(BatchNormalization())
-            model.add(MaxPool2D(2, 2))
+            # # Layer 1
+            # model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(224, 224, 3)))
+            # model.add(BatchNormalization())
+            # model.add(MaxPool2D(2, 2))
 
-            # Layer 4
-            model.add(Conv2D(256, (3, 3), activation="relu"))
-            model.add(BatchNormalization())
-            model.add(MaxPool2D(2, 2))
+            # # Layer 2
+            # model.add(Conv2D(64, (3, 3), activation="relu"))
+            # model.add(BatchNormalization())
+            # model.add(MaxPool2D(2, 2))
 
-            # Layer 5
-            model.add(Conv2D(256, (3, 3), activation="relu"))
-            model.add(BatchNormalization())
-            model.add(MaxPool2D(2, 2))
+            # # Layer 3
+            # model.add(Conv2D(128, (3, 3), activation="relu"))
+            # model.add(BatchNormalization())
+            # model.add(MaxPool2D(2, 2))
 
-            model.add(Flatten())
+            # # Layer 4
+            # model.add(Conv2D(256, (3, 3), activation="relu"))
+            # model.add(BatchNormalization())
+            # model.add(MaxPool2D(2, 2))
 
-            # Fully connected layer
-            model.add(Dense(512, activation="relu", kernel_regularizer=l2(0.01)))
-            model.add(Dropout(0.5))
+            # # Layer 5
+            # model.add(Conv2D(256, (3, 3), activation="relu"))
+            # model.add(BatchNormalization())
+            # model.add(MaxPool2D(2, 2))
 
-            # Output layer: binary classification
-            model.add(Dense(1, activation="sigmoid"))
+            # model.add(Flatten())
+
+            # # Fully connected layer
+            # model.add(Dense(512, activation="relu", kernel_regularizer=l2(0.01)))
+            # # model.add(Dropout(0.5))
+
+            # # Output layer: binary classification
+            # model.add(Dense(1, activation="sigmoid"))
 
             model.compile(
                 optimizer=tf.optimizers.Adam(learning_rate=0.0001),
@@ -102,14 +123,14 @@ class GazeDetectionModel:
 
     def get_data_generators(self):
         train_datagen = ImageDataGenerator(
-            rescale=1 / 255,
+            preprocessing_function=preprocess_input,
             rotation_range=10,
             zoom_range=0.1,
             width_shift_range=0.1,
             height_shift_range=0.1,
             horizontal_flip=True,
         )
-        valid_datagen = ImageDataGenerator(rescale=1 / 255)
+        valid_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
         train_generator = train_datagen.flow_from_directory(
             "../../test_faces/train",
@@ -143,9 +164,9 @@ class GazeDetectionModel:
         )
         class_weights = dict(enumerate(class_weights))
 
-        # if validation loss does not decrease after 2 epochs, reduce learning rate by half
+        # if validation loss does not decrease after 5 epochs, reduce learning rate by half
         reduce_lr = ReduceLROnPlateau(
-            monitor="val_accuracy", factor=0.5, patience=2, min_lr=1e-7, verbose=1
+            monitor="val_loss", factor=0.5, patience=5, min_lr=1e-7, verbose=1
         )
 
         # model = load_model('gaze_detection_model.h5')
@@ -154,7 +175,7 @@ class GazeDetectionModel:
         history = self.model.fit(
             self.train_generator,
             steps_per_epoch=19,
-            epochs=20,
+            epochs=15,
             verbose=2,
             validation_data=self.valid_generator,
             validation_steps=4,
@@ -176,6 +197,9 @@ class GazeDetectionModel:
         plt.legend()
         # plt.show()
         plt.savefig("accuracy_plot.png")
+        
+        # clear the current figure
+        plt.clf()
 
         # Plot loss
         plt.plot(history.history["loss"], label="Training Loss")
@@ -198,16 +222,17 @@ class GazeDetectionModel:
         the person in the image.
         """
         # Load and preprocess the image
-        img = tf.keras.utils.load_img(image_path, target_size=(224, 224))
-        img_array = tf.keras.utils.img_to_array(img) / 255.0
-        img_array = tf.expand_dims(img_array, axis=0)
+        img = load_img(image_path, target_size=(224, 224))
+        img_array = img_to_array(img)
+        img_array = preprocess_input(img_array)
+        img_array = np.expand_dims(img_array, axis=0)
 
         prediction = self.model.predict(img_array)[0]
 
         if prediction < 0.5:
-            return "not focused", prediction
-        else:
             return "focused", prediction
+        else:
+            return "not_focused", prediction
 
     def make_predictions(self, image_dir, output_file):
         """
@@ -249,8 +274,8 @@ def main():
     #  print class indices
     # print(model.model.class_indices)
 
-    # model.train()
-    model.evaluate()
+    model.train()
+    # model.evaluate()
     # model.predict_image_with_labels("../../test_faces/valid/not_focused/video1-frame9-face2.jpg", "lol_prediction.jpg")
     # train_focused_names = os.listdir(model.train_focused_dir)
     # print(train_focused_names[:10])
@@ -271,10 +296,20 @@ def main():
     #         image_path = os.path.join("../../test_faces/valid/not_focused", image)
     #         output_path = os.path.join(output_dir, f"prediction{output_count}.jpg")
     #         model.predict_image(image_path, output_path)
-    # # #         output_count += 1
+    # # # # # #         output_count += 1
     # model.make_predictions("../../test_faces/valid/focused", "predictions.txt")
     # model.make_predictions("../../test_faces/valid/not_focused", "predictions.txt")
+    # print class indices
+    
+    
+    # class_indices = model.valid_generator.class_indices
+    # index_to_class = {v: k for k, v in class_indices.items()}
+    # y_pred = (model.model.predict(model.valid_generator) > 0.5).astype("int32")
+    # y_true = model.valid_generator.classes
+    # y_pred_labels = [index_to_class[int(i)] for i in y_pred]  
+    # y_true_labels = [index_to_class[int(i)] for i in y_true]
 
+    # print(classification_report(y_true_labels, y_pred_labels))
 
 if __name__ == "__main__":
     main()
