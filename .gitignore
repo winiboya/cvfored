@@ -11,4 +11,4 @@ videos
 
 output_frames/
 output_faces/
-test_faces/
+to_train/

@@ -38,7 +38,7 @@ class VideoFrameExtraction:
         
         video = cv2.VideoCapture(video_path)
         total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        num_frames = int(total_frames * .05)
+        num_frames = int(total_frames * .02)
         frame_interval = total_frames // num_frames
         frame_number = 0
         saved_frame_count = 0
@@ -64,4 +64,4 @@ class VideoFrameExtraction:
         video.release()
         cv2.destroyAllWindows()
         
-        print(f"Extracted {saved_frame_count} frames from {video_path} to {self.output_dir}")
+        return saved_frame_count
