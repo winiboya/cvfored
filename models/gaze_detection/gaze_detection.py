@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 from itertools import cycle
 from sklearn.metrics import classification_report
-from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 
 from tensorflow.keras.regularizers import l2
@@ -21,7 +21,7 @@ from tensorflow.keras.layers import (
     Dense,
     Dropout,
     BatchNormalization,
-    GlobalAveragePooling2D
+    GlobalAveragePooling2D,
 )
 import matplotlib.pyplot as plt
 
@@ -62,22 +62,25 @@ class GazeDetectionModel:
 
         else:
 
-            base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+            base_model = ResNet50(
+                weights="imagenet", include_top=False, input_shape=(224, 224, 3)
+            )
 
             base_model.trainable = False
-            
+
             for layer in base_model.layers[-10:]:
                 layer.trainable = True
 
-            model = Sequential([
-                base_model,
-                GlobalAveragePooling2D(),
-                BatchNormalization(),
-                Dense(1024, activation="relu", kernel_regularizer=l2(0.01)),
-                Dropout(0.5),
-                Dense(1, activation="sigmoid") #updated
-                
-            ])
+            model = Sequential(
+                [
+                    base_model,
+                    GlobalAveragePooling2D(),
+                    Dense(1024, activation="relu"),
+                    BatchNormalization(),
+                    Dropout(0.5),
+                    Dense(1, activation="sigmoid"),  # updated
+                ]
+            )
 
             # # Layer 1
             # model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(224, 224, 3)))
@@ -164,6 +167,7 @@ class GazeDetectionModel:
         )
         class_weights = dict(enumerate(class_weights))
 
+
         # if validation loss does not decrease after 5 epochs, reduce learning rate by half
         reduce_lr = ReduceLROnPlateau(
             monitor="val_loss", factor=0.5, patience=5, min_lr=1e-7, verbose=1
@@ -197,7 +201,7 @@ class GazeDetectionModel:
         plt.legend()
         # plt.show()
         plt.savefig("accuracy_plot.png")
-        
+
         # clear the current figure
         plt.clf()
 
@@ -230,11 +234,11 @@ class GazeDetectionModel:
         prediction = self.model.predict(img_array)[0]
 
         if prediction < 0.5:
-            return "focused", prediction
+            return "focused", float(prediction)
         else:
-            return "not_focused", prediction
+            return "not_focused", float(prediction)
 
-    def make_predictions(self, image_dir, output_file):
+    def make_predictions(self, image_dir, output_file, output_images=False):
         """
         Makes gaze predictions for all images in the given directory.
         """
@@ -244,10 +248,13 @@ class GazeDetectionModel:
             if image.endswith(".jpg"):
                 image_path = os.path.join(image_dir, image)
                 true_label = image_path.split("/")[-2]
-                prediction, score = self.predict_image(image_path)
-                file.write(
-                    f"File: {image}, True label: {true_label}, Prediction: {prediction}, Score: {score}\n"
-                )
+                if output_images:
+                    self.predict_image_with_labels(image_path, f"predictions/{true_label}-{image}")
+                else:
+                    prediction, score = self.predict_image(image_path)
+                    file.write(
+                        f"File: {image}, True label: {true_label}, Prediction: {prediction}, Score: {score}\n"
+                    )
 
         file.close()
 
@@ -259,7 +266,7 @@ class GazeDetectionModel:
         true_label = image_path.split("/")[-2]
         prediction, score = self.predict_image(image_path)
 
-        plt.title(f"True label: {true_label}, Prediction: {prediction}")
+        plt.title(f"True label: {true_label}, Prediction: {prediction} (score: {score:.2f})")
 
         img = tf.keras.preprocessing.image.load_img(image_path)
 
@@ -274,7 +281,7 @@ def main():
     #  print class indices
     # print(model.model.class_indices)
 
-    model.train()
+    # model.train()
     # model.evaluate()
     # model.predict_image_with_labels("../../test_faces/valid/not_focused/video1-frame9-face2.jpg", "lol_prediction.jpg")
     # train_focused_names = os.listdir(model.train_focused_dir)
@@ -296,20 +303,20 @@ def main():
     #         image_path = os.path.join("../../test_faces/valid/not_focused", image)
     #         output_path = os.path.join(output_dir, f"prediction{output_count}.jpg")
     #         model.predict_image(image_path, output_path)
-    # # # # # #         output_count += 1
-    # model.make_predictions("../../test_faces/valid/focused", "predictions.txt")
-    # model.make_predictions("../../test_faces/valid/not_focused", "predictions.txt")
+    # # # # #         output_count += 1
+    model.make_predictions("../../test_faces/valid/focused", "predictions.txt", output_images=True)
+    model.make_predictions("../../test_faces/valid/not_focused", "predictions.txt", output_images=True)
     # print class indices
-    
-    
+
     # class_indices = model.valid_generator.class_indices
     # index_to_class = {v: k for k, v in class_indices.items()}
     # y_pred = (model.model.predict(model.valid_generator) > 0.5).astype("int32")
     # y_true = model.valid_generator.classes
-    # y_pred_labels = [index_to_class[int(i)] for i in y_pred]  
+    # y_pred_labels = [index_to_class[int(i)] for i in y_pred]
     # y_true_labels = [index_to_class[int(i)] for i in y_true]
 
     # print(classification_report(y_true_labels, y_pred_labels))
+
 
 if __name__ == "__main__":
     main()
