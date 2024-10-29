@@ -9,7 +9,7 @@ sys.path.insert(0, '../models/gaze_detection')
 sys.path.insert(0, '../models/face_extraction')
 sys.path.insert(0, '../utils')
 
-from face_extraction_model import FaceExtractionModel
+from face_extraction_model_test import FaceExtractionModel
 
 def main():
     
@@ -20,7 +20,8 @@ def main():
             output_directory="test_output"
         )
     
-    face_extraction.run()
+    face_extraction.extract_faces()
+    # face_extraction.one_pass_extract_faces()
     
     print("DONE")
     
