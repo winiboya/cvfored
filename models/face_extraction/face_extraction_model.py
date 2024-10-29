@@ -244,7 +244,7 @@ class FaceExtractionModel:
                 image_count +=1
 
                 # use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, filename[:-4])
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, image_count, filename[:-4])
                 total_faces += final_count
                 print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
