@@ -1,36 +1,51 @@
 import sys
 
-sys.path.insert(0, '../models/gaze_detection')
-sys.path.insert(0, '../models/face_extraction')
+sys.path.insert(0, "../models/gaze_detection")
+sys.path.insert(0, "../models/face_extraction")
+sys.path.insert(0, '../utils')
 
-from gaze_detection_model import GazeDetectionModel
+from gaze_detection import GazeDetectionModel
 from face_extraction_model import FaceExtractionModel
+from video_frame_extraction import VideoFrameExtraction
+
+
+class Pipeline:
+    def __init__(self, video_path):
+        self.video_path = video_path
+        self.frame_output_dir = "frame_output_dir"
+        self.face_output_dir = "face_output_dir"
+        self.video_frame_extraction = VideoFrameExtraction(self.frame_output_dir)
+        self.face_extraction = FaceExtractionModel(
+            prototxt_path="../models/face_extraction/deploy.prototxt",
+            caffe_model_path="../models/face_extraction/res10_300x300_ssd_iter_140000.caffemodel",
+            input_directory=self.frame_output_dir,
+            output_directory=self.face_output_dir
+        )
+        self.gaze_detection = GazeDetectionModel("../models/gaze_detection/gaze_detection_model.h5", "../test_faces/train", "../test_faces/valid")
+
+        
+    def run(self):
+        self.video_frame_extraction.extract_frames(self.video_path)
+        self.face_extraction.extract_faces()
+        self.gaze_detection.make_predictions(self.face_output_dir, "predictions.txt", output_images=True)
+        
+    def clean_up(self):
+        pass
 
 def main():
-    print("Starting the training process...")
     
-    face_extraction = FaceExtractionModel(
-        prototxt_path='', 
-        caffe_model_path='', 
-        input_directory='', 
-        output_directory=''
-    )
+    pipeline = Pipeline("../lecture.MOV")
+    pipeline.run()
     
-    face_extraction.run()
     
-    # Initialize the model with desired parameters
-    gaze_detection = GazeDetectionModel(
-        model_path='gaze_detection_model.h5',
-        train_data_path='../testdata/gaze/',
-        batch_size=32,
-        target_size=(224, 224),
-        epochs=10
-    )
 
-    # Run the training and saving process
-    # gaze_detection.run()
-    # model.predict_and_save_images('output/', 10)
-    # model.predict_and_save_single_image("image.png", "not_focused")
+    #  face_extraction = FaceExtractionModel(
+    #         prototxt_path="../models/face_extraction/deploy.prototxt",
+    #         caffe_model_path="../models/face_extraction/res10_300x300_ssd_iter_140000.caffemodel",
+    #         input_directory=frame_output_dir,
+    #         output_directory=face_output_dir
+    #     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

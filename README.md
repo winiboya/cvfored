@@ -23,3 +23,8 @@ python extract_test_data.py --input_dir "input_dir" --frame_output_dir "output_f
 ```
 
 ## Training the Model
+
+```
+cd models/gaze_detection
+python gaze_detection_model.py --model_path="gaze_detection_model.h5" --train_data_path="../../test_faces/train" --validate_data_path="../../test_faces/validate" 
+```

@@ -54,12 +54,15 @@ class TestDataExtraction:
         Uses the VideoFrameExtraction class to extract frames from the video files in the input directory.
         """ 
         
+        
         count = 1
+        num_frames = 0
         for filename in os.listdir(self.input_dir):
             if filename.endswith(".MOV"):
                 video_path = os.path.join(self.input_dir, filename)
-                self.video_frame_extraction.extract_frames(video_path, "video" + str(count))
+                num_frames += self.video_frame_extraction.extract_frames(video_path, "video" + str(count))
                 count += 1
+        return num_frames
                 
     def extract_faces(self):
         """
@@ -69,7 +72,8 @@ class TestDataExtraction:
         #     if filename.endswith(".jpg"):
         #         file_prefix = filename[:-4]
         #         self.face_extraction.extract_faces(file_prefix)
-        self.face_extraction.extract_faces()
+        return self.face_extraction.extract_faces()
+        
     
 
 
@@ -82,8 +86,10 @@ def main():
     args = parser.parse_args()
     
     data_extraction = TestDataExtraction(args.input_dir, args.frame_output_dir, args.face_output_dir)
-    # data_extraction.extract_frames()
-    data_extraction.extract_faces()
+    total_frames = data_extraction.extract_frames()
+    print(f"Total number of frames extracted: {total_frames}")
+    total_faces = data_extraction.extract_faces()
+    print(f"Total number of faces extracted: {total_faces}")
     
 if __name__ == "__main__":
     main()

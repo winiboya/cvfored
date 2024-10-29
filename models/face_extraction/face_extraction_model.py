@@ -185,8 +185,7 @@ class FaceExtractionModel:
 
             for i in extractions_org:
                 if self.cv_dnn_detect_faces(i, second_conf, display=False)[4] > 0:
-
-                    ## Print extraction_index, len(extractions), len(extractions_org)                    
+                    
                     # print(f"Count: {count}, extractions: {len(extractions)}, extractions_org: {len(extractions_org)}")
 
                     # Add face extraction to final_faces
@@ -223,6 +222,8 @@ class FaceExtractionModel:
 
         # Define image count variable
         image_count = 0
+        
+        total_faces = 0
 
         for filename in os.listdir(self.input_directory):
 
@@ -242,9 +243,9 @@ class FaceExtractionModel:
 
                 image_count +=1
 
-                # Use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, image_count, filename)
-                
+                # use image as input
+                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, var, filename[:-4])
+                total_faces += final_count
                 print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
                 # with open('my_file.txt', 'a') as file:
@@ -252,5 +253,9 @@ class FaceExtractionModel:
                 #     file.write(f"{filename}: {initial_count} faces detected after first pass.\n")
                 #     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
+                
+
+            # if file is not image
+        return total_faces
         
                 
