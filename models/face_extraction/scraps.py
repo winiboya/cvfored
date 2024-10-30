@@ -6,15 +6,6 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 
-first_conf = 0
-
-second_conf = 0
-
-only_conf = 0.01
-
-iou_thresh = 0.6
-
-padding_factor = 0.8
 
 class FaceExtractionModel:
     """
@@ -105,8 +96,6 @@ class FaceExtractionModel:
         # Initialize count of detected faces
         faces_count = 0
 
-        bboxes_tuples = []
-
         # Iterate through model results, counting faces above confidence threshold and filling lists of extracted faces
         for face in results[0][0]:
             
@@ -118,47 +107,28 @@ class FaceExtractionModel:
 
                 bounding_box = bounding_box.tolist()
 
-                bboxes.append([bounding_box, face_confidence])
+                bboxes.append(bounding_box)
 
-        print(f"PRE: {len(bboxes)}")
-
-        # removals
-
-        to_remove = []
-        third_bboxes = []
-
-        for a in bboxes: 
-            for b in bboxes:
-                if a != b:
-                    x1_a, y1_a, x2_a, y2_a = a[0]
-                    x1_b, y1_b, x2_b, y2_b = b[0]
-                    is_inside = (x1_a <= x1_b) and (y1_a <= y1_b) and (x2_a >= x2_b) and (y2_a >= y2_b)
-                    if is_inside == True:
-                        to_remove.append(a)
-        
-        second_bboxes = [item for item in bboxes if item not in to_remove]
-
-        print(f"POST: {len(second_bboxes)}")
-
-        for x in second_bboxes:
-            third_bboxes.append(x[0])
-            confidence_scores.append(x[1])
-
-        boxes = third_bboxes # Bounding boxes from face detector
+                confidence_scores.append(float(face_confidence))
+    
+        print(f"Initial boxes {len(bboxes)}")
+        boxes = bboxes # Bounding boxes from face detector
         confidences = confidence_scores  # Confidence scores for each bounding box
-        threshold = iou_thresh  # IoU threshold for suppression
+        threshold = 0.4  # IoU threshold for suppression
 
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, score_threshold=only_conf, nms_threshold=threshold)
+        # print(f"Boxes {boxes}")
+        # print(f"Confidences {confidences}")
+
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, score_threshold=0.13, nms_threshold=threshold)
+
+        # print(f"Indices {indices}")
 
         for i in indices:
             # i = i[0]
             box = boxes[i]
+            print(f"CONF {confidences[i]}")
             box = np.array(box)
             new_bboxes.append(box)
-
-        print(f"POST POST: {len(new_bboxes)}")
-
-        # new_bboxes = bboxes
 
         for bbox in new_bboxes:
 
@@ -178,6 +148,7 @@ class FaceExtractionModel:
                 faces_count += 1
 
                 # Handle padded face extractions
+                padding_factor = 2
 
                 face_width_padding = int((x2a - x1a)/padding_factor)
                 face_height_padding = int((y1a - y2a)/padding_factor)
@@ -306,7 +277,7 @@ class FaceExtractionModel:
                 image_count +=1
 
                 # Use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, first_conf, second_conf, image_count, filename[:-4])
+                initial_count, final_count = self.two_pass_face_detection(image, 0, 0.99, image_count, filename[:-4])
                 
                 print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
@@ -342,7 +313,7 @@ class FaceExtractionModel:
                 image_count +=1
 
                 # Use image as input
-                output_image, results, faces, faces_org, faces_count = self.cv_dnn_detect_faces(image, only_conf, display = False)
+                output_image, results, faces, faces_org, faces_count = self.cv_dnn_detect_faces(image, 0, display = False)
                 
                 # Save face extraction to output directory
 
@@ -365,4 +336,31 @@ class FaceExtractionModel:
                 #     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
         
-                
+
+
+        print(f"PRE: {len(bboxes)}")
+
+        # removals
+
+        to_remove = []
+
+        for a in bboxes: 
+            print(f"{a}") 
+            # for b in bboxes:
+            #     x1_a, y1_a, x2_a, y2_a = int(a[0] * image_width), (a[1] * image_height), (a[2] * image_width), (a[3] * image_height)
+            #     x1_b, y1_b, x2_b, y2_b = int(b[0] * image_width), (b[1] * image_height), (b[2] * image_width), (b[3] * image_height)
+            #     is_inside = (x1_a <= x1_b) and (y1_a <= y1_b) and (x2_a >= x2_b) and (y2_a >= y2_b)
+            #     if is_inside == True:
+            #         print("yes")
+            #         to_remove.append(b)
+        
+        # bboxes_tuples = [tuple(bbox) for bbox in bboxes]
+        # to_remove_tuples = [tuple(remove) for remove in to_remove]
+        # new_bboxes_tuples = list(set(bboxes_tuples) - set(to_remove_tuples))
+        # new_bboxes = [list(bbox) for bbox in new_bboxes_tuples]
+
+        print(f"POST: {len(new_bboxes)}")
+
+        # new_bboxes = bboxes
+
+        for bbox in new_bboxes:

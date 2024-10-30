@@ -3,6 +3,18 @@ import cv2
 import dlib
 from time import time
 import matplotlib.pyplot as plt
+import cv2
+import numpy as np
+
+first_conf = 0
+
+second_conf = 0
+
+only_conf = 0.01
+
+iou_thresh = 0.6
+
+padding_factor = 0.8
 
 
 class FaceExtractionModel:
@@ -87,9 +99,13 @@ class FaceExtractionModel:
         # Initialize lists to keep track of extracted images
         faces_org = []
         faces = []
+        bboxes = []
+        confidence_scores = []
+        new_bboxes = []
 
         # Initialize count of detected faces
         faces_count = 0
+        bboxes_tuples = []
 
         # Iterate through model results, counting faces above confidence threshold and filling lists of extracted faces
         for face in results[0][0]:
@@ -98,26 +114,66 @@ class FaceExtractionModel:
             
             if face_confidence > min_confidence:
 
+                bounding_box = face[3:]
+
+                bounding_box = bounding_box.tolist()
+
+                bboxes.append([bounding_box, face_confidence])
+
+        print(f"PRE: {len(bboxes)}")
+
+        to_remove = []
+        third_bboxes = []
+
+        for a in bboxes: 
+            for b in bboxes:
+                if a != b:
+                    x1_a, y1_a, x2_a, y2_a = a[0]
+                    x1_b, y1_b, x2_b, y2_b = b[0]
+                    is_inside = (x1_a <= x1_b) and (y1_a <= y1_b) and (x2_a >= x2_b) and (y2_a >= y2_b)
+                    if is_inside == True:
+                        to_remove.append(a)
+
+        second_bboxes = [item for item in bboxes if item not in to_remove]
+
+        print(f"POST: {len(second_bboxes)}")
+
+        for x in second_bboxes:
+            third_bboxes.append(x[0])
+            confidence_scores.append(x[1])
+
+        boxes = third_bboxes # Bounding boxes from face detector
+        confidences = confidence_scores  # Confidence scores for each bounding box
+        threshold = iou_thresh  # IoU threshold for suppression
+
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, score_threshold=only_conf, nms_threshold=threshold)
+
+        for i in indices:
+            # i = i[0]
+            box = boxes[i]
+            box = np.array(box)
+            new_bboxes.append(box)
+
+        print(f"POST POST: {len(new_bboxes)}")
+
+        for bbox in new_bboxes:
+
+            # Handle original face extractions
+            x1a = int((bbox[0] * image_width))
+            y1a = int((bbox[1] * image_height))
+            x2a = int((bbox[2] * image_width))
+            y2a = int((bbox[3] * image_height))
+
+            cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
+
+            extraction_org = image[y1a:y2a, x1a:x2a]
+
+            if not (extraction_org is None or extraction_org.size == 0):
+
+                faces_org.append(extraction_org)
                 faces_count += 1
 
-                bbox = face[3:]
-
-                # Handle original face extractions
-                x1a = int((bbox[0] * image_width))
-                y1a = int((bbox[1] * image_height))
-                x2a = int((bbox[2] * image_width))
-                y2a = int((bbox[3] * image_height))
-
-                cv2.rectangle(output_image, pt1=(x1a, y1a), pt2=(x2a, y2a), color=(0, 255, 0), thickness=image_width//200)
-
-                extraction_org = image[y1a:y2a, x1a:x2a]
-
-                if not (extraction_org is None or extraction_org.size == 0):
-    
-                    faces_org.append(extraction_org)
-
                 # Handle padded face extractions
-                padding_factor = 2
 
                 face_width_padding = int((x2a - x1a)/padding_factor)
                 face_height_padding = int((y1a - y2a)/padding_factor)
@@ -140,8 +196,10 @@ class FaceExtractionModel:
                 extraction = image[y1:y2, x1:x2]
 
                 if not (extraction is None or extraction.size == 0):
-
-                    faces.append(extraction)
+                        faces.append(extraction)
+                    
+                else:
+                    faces.append(extraction_org)
 
         # If display flag on, show image with rectangles
         if display:
@@ -244,7 +302,7 @@ class FaceExtractionModel:
                 image_count +=1
 
                 # use image as input
-                initial_count, final_count = self.two_pass_face_detection(image, 0.14, 0.99, image_count, filename[:-4])
+                initial_count, final_count = self.two_pass_face_detection(image, first_conf, second_conf, image_count, filename[:-4])
                 total_faces += final_count
                 print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
@@ -254,7 +312,6 @@ class FaceExtractionModel:
                 #     file.write(f"{filename}: {final_count} faces detected after second pass.\n")
 
                 
-
             # if file is not image
         return total_faces
         
