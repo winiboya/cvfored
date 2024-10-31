@@ -27,6 +27,7 @@ class Pipeline:
     def run(self):
         self.video_frame_extraction.extract_frames(self.video_path)
         self.face_extraction.extract_faces()
+        
         self.gaze_detection.make_predictions(self.face_output_dir, "predictions.txt", output_images=True)
         
     def clean_up(self):
