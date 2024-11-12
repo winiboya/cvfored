@@ -1,0 +1,100 @@
+body {
+    background-color: #EDF1F7;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+
+}
+
+
+.body-container {
+    margin: auto;
+    width: 80%;
+    border-radius: 30px;
+    background-color: white;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.upload-container {
+    border-radius: 5px;
+    border: 2px dashed #A9ACB4;
+    margin: 2rem 6rem;
+    padding: 1rem;
+}
+.uploaded-section {
+    margin-top: 20px;
+}
+
+.uploaded-file {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    background-color: #EDF1F7;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 50px 5px 0px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.uploaded-file i {
+    font-size: 2rem;
+    color: black;
+    margin-right: 15px;
+}
+
+.uploaded-file .details {
+    flex-grow: 1;
+}
+
+.uploaded-file .details p {
+    margin: 0;
+    color: black;
+}
+
+.uploaded-file .details p:first-child {
+    font-weight: 600;
+}
+
+.uploaded-file .details p:last-child {
+    font-size: 0.9rem;
+    color: #A9ACB4;
+}
+
+form i {
+    font-size: 4.5rem;
+    padding: 1rem;
+    color: black;
+}
+
+form p {
+    color:#black;
+    margin: 10px;
+}
+
+.browse {
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 2px solid #A9ACB4;
+    padding: 0.5rem 0.7rem;
+    margin-top: 1rem;
+    background-color: white;
+}
+
+.file-constraints {
+    color: #A9ACB4;
+    font-style:italic;
+
+}
+
+.button-results {
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: 0px;
+    padding: 0.5rem 0.7rem;
+    color: white;
+    background-color: black;
+
+}
