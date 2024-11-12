@@ -136,7 +136,7 @@ class FaceExtractionModel:
 
         second_bboxes = [item for item in bboxes if item not in to_remove]
 
-        print(f"POST: {len(second_bboxes)}")
+        # print(f"POST: {len(second_bboxes)}")
 
         for x in second_bboxes:
             third_bboxes.append(x[0])
@@ -154,7 +154,7 @@ class FaceExtractionModel:
             box = np.array(box)
             new_bboxes.append(box)
 
-        print(f"POST POST: {len(new_bboxes)}")
+        # print(f"POST POST: {len(new_bboxes)}")
 
         for bbox in new_bboxes:
 
