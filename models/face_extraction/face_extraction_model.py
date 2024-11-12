@@ -120,7 +120,7 @@ class FaceExtractionModel:
 
                 bboxes.append([bounding_box, face_confidence])
 
-        print(f"PRE: {len(bboxes)}")
+        # print(f"PRE: {len(bboxes)}")
 
         to_remove = []
         third_bboxes = []
@@ -304,7 +304,7 @@ class FaceExtractionModel:
                 # use image as input
                 initial_count, final_count = self.two_pass_face_detection(image, first_conf, second_conf, image_count, filename[:-4])
                 total_faces += final_count
-                print(f"Extracted {final_count} faces from {filename} after two passes.")
+                # print(f"Extracted {final_count} faces from {filename} after two passes.")
                 
                 # with open('my_file.txt', 'a') as file:
                 #     file.write(f"{image_count}\n")

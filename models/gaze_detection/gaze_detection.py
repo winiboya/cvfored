@@ -1,19 +1,24 @@
 import os
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-import tensorflow as tf
 import numpy as np
-from itertools import cycle
-from sklearn.metrics import classification_report
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
-
-from tensorflow.keras.regularizers import l2
-from tensorflow.keras.callbacks import EarlyStopping
+import matplotlib.pyplot as plt
+from sklearn import svm, datasets
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+)
 from sklearn.utils.class_weight import compute_class_weight
-from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array, load_img, ImageDataGenerator
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.applications import ResNet50
-
-from tensorflow.keras.models import Model, load_model, Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import load_model, Sequential
 from tensorflow.keras.layers import (
     Conv2D,
     MaxPool2D,
@@ -23,108 +28,64 @@ from tensorflow.keras.layers import (
     BatchNormalization,
     GlobalAveragePooling2D,
 )
-import matplotlib.pyplot as plt
 
-from sklearn import svm, datasets
-from sklearn.metrics import roc_curve, auc
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import label_binarize
-from sklearn.multiclass import OneVsRestClassifier
-from scipy import interp
-from sklearn.metrics import roc_auc_score
+
 
 
 class GazeDetectionModel:
-    def __init__(self):
+    """
+    Class for training and evaluating a gaze detection model.
+    """
 
-        # Directory with focused training data
-        self.train_focused_dir = os.path.join("../../test_faces/train/focused")
+    def __init__(self, model_path, train_dir, valid_dir):
 
-        # Directory with not focused training data
-        self.train_not_focused_dir = os.path.join("../../test_faces/train/not_focused")
+        self.model_path = model_path
+        self.train_dir = train_dir
+        self.valid_dir = valid_dir
+        self.model = self._get_model()
+        self.train_generator, self.valid_generator = self._get_data_generators()
 
-        # Directory with focused validation data
-        self.valid_focused_dir = os.path.join("../../test_faces/valid/focused")
-
-        # Directory with not focused validation data
-        self.valid_not_focused_dir = os.path.join("../../test_faces/valid/not_focused")
-
-        self.model = self.get_model()
-        self.train_generator, self.valid_generator = self.get_data_generators()
-
-    def get_model(self):
+    def _get_model(self):
         """
-        Returns the gaze detection model.
+        Returns the saved gaze detection model if it exists, otherwise creates a new model.
         """
-        if os.path.exists("gaze_detection_model.h5"):
+        if os.path.exists(self.model_path):
+            return load_model(self.model_path)
 
-            return load_model("gaze_detection_model.h5")
 
-        else:
+        base_model = ResNet50(
+            weights="imagenet", include_top=False, input_shape=(224, 224, 3)
+        )
 
-            base_model = ResNet50(
-                weights="imagenet", include_top=False, input_shape=(224, 224, 3)
-            )
+        base_model.trainable = False
 
-            base_model.trainable = False
+        for layer in base_model.layers[-10:]:
+            layer.trainable = True
 
-            for layer in base_model.layers[-10:]:
-                layer.trainable = True
+        # create model with ResNet50 base model and custom top layers
+        model = Sequential(
+            [
+                base_model,
+                GlobalAveragePooling2D(),
+                Dense(1024, activation="relu"),
+                BatchNormalization(),
+                Dropout(0.5),
+                Dense(1, activation="sigmoid"),
+            ]
+        )
 
-            model = Sequential(
-                [
-                    base_model,
-                    GlobalAveragePooling2D(),
-                    Dense(1024, activation="relu"),
-                    BatchNormalization(),
-                    Dropout(0.5),
-                    Dense(1, activation="sigmoid"),  # updated
-                ]
-            )
+        model.compile(
+            optimizer=Adam(learning_rate=0.0001),
+            loss="binary_crossentropy",
+            metrics=["accuracy"],
+        )
 
-            # # Layer 1
-            # model.add(Conv2D(32, (3, 3), activation="relu", input_shape=(224, 224, 3)))
-            # model.add(BatchNormalization())
-            # model.add(MaxPool2D(2, 2))
+        return model
 
-            # # Layer 2
-            # model.add(Conv2D(64, (3, 3), activation="relu"))
-            # model.add(BatchNormalization())
-            # model.add(MaxPool2D(2, 2))
-
-            # # Layer 3
-            # model.add(Conv2D(128, (3, 3), activation="relu"))
-            # model.add(BatchNormalization())
-            # model.add(MaxPool2D(2, 2))
-
-            # # Layer 4
-            # model.add(Conv2D(256, (3, 3), activation="relu"))
-            # model.add(BatchNormalization())
-            # model.add(MaxPool2D(2, 2))
-
-            # # Layer 5
-            # model.add(Conv2D(256, (3, 3), activation="relu"))
-            # model.add(BatchNormalization())
-            # model.add(MaxPool2D(2, 2))
-
-            # model.add(Flatten())
-
-            # # Fully connected layer
-            # model.add(Dense(512, activation="relu", kernel_regularizer=l2(0.01)))
-            # # model.add(Dropout(0.5))
-
-            # # Output layer: binary classification
-            # model.add(Dense(1, activation="sigmoid"))
-
-            model.compile(
-                optimizer=tf.optimizers.Adam(learning_rate=0.0001),
-                loss="binary_crossentropy",
-                metrics=["accuracy"],
-            )
-
-            return model
-
-    def get_data_generators(self):
+    def _get_data_generators(self):
+        """
+        Returns the training and validation data generators.
+        """
         train_datagen = ImageDataGenerator(
             preprocessing_function=preprocess_input,
             rotation_range=10,
@@ -136,107 +97,105 @@ class GazeDetectionModel:
         valid_datagen = ImageDataGenerator(preprocessing_function=preprocess_input)
 
         train_generator = train_datagen.flow_from_directory(
-            "../../test_faces/train",
+            self.train_dir,
             target_size=(224, 224),
             batch_size=32,
             class_mode="binary",
             shuffle=True,
+            classes=["not_focused", "focused"],
         )
 
         valid_generator = valid_datagen.flow_from_directory(
-            "../../test_faces/valid",
+            self.valid_dir,
             target_size=(224, 224),
             batch_size=32,
             class_mode="binary",
             shuffle=False,
+            classes=["not_focused", "focused"],
         )
         return train_generator, valid_generator
 
-    def train(self):
+    def train(self, steps_per_epoch=19, epochs=30, validation_steps=4):
+        """
+        Trains the gaze detection model.
+        """
 
-        model = self.model
-
+        # if validation loss does not decrease after 5 epochs, stop training
         early_stopping = EarlyStopping(
-            monitor="val_loss", patience=3, restore_best_weights=True
+            monitor="val_loss", patience=5, restore_best_weights=True
         )
-
+        # adjust class weights to handle class imbalance
         class_weights = compute_class_weight(
             class_weight="balanced",
             classes=np.unique(self.train_generator.classes),
             y=self.train_generator.classes,
         )
         class_weights = dict(enumerate(class_weights))
-
-
-        # if validation loss does not decrease after 5 epochs, reduce learning rate by half
-        reduce_lr = ReduceLROnPlateau(
-            monitor="val_loss", factor=0.5, patience=5, min_lr=1e-7, verbose=1
-        )
-
-        # model = load_model('gaze_detection_model.h5')
-        # assign weights based on class imbalance
-
+        
         history = self.model.fit(
             self.train_generator,
-            steps_per_epoch=19,
-            epochs=15,
+            steps_per_epoch=steps_per_epoch,
+            epochs=epochs,
             verbose=2,
             validation_data=self.valid_generator,
-            validation_steps=4,
-            callbacks=[early_stopping, reduce_lr],
+            validation_steps=validation_steps,
+            callbacks=[early_stopping],
             class_weight=class_weights,
         )
 
-        self.plot_history(history)
-
+        self._plot_history(history)
         self.model.save("gaze_detection_model.h5")
 
-    def plot_history(self, history):
-        # Plot accuracy
-        plt.plot(history.history["accuracy"], label="Training Accuracy")
-        plt.plot(history.history["val_accuracy"], label="Validation Accuracy")
-        plt.title("Model Accuracy")
-        plt.xlabel("Epochs")
-        plt.ylabel("Accuracy")
-        plt.legend()
-        # plt.show()
-        plt.savefig("accuracy_plot.png")
+    def _plot_history(self, history):
+        """
+        Plots the accuracy and loss of the model during training.
+        """
+        
+        for metric in ["accuracy", "loss"]:
+            
 
-        # clear the current figure
-        plt.clf()
+            # Plot accuracy
+            plt.plot(history.history[metric], label=f"Training {metric.capitalize()}")
+            plt.plot(history.history[f"val_{metric}"], label=f"Validation {metric.capitalize()}")
+            plt.title(f"Model {metric.capitalize()}")
+            plt.xlabel("Epochs")
+            plt.ylabel("Accuracy")
+            plt.legend()
+            plt.savefig(f"{metric}_plot.png")
+            plt.clf()
 
-        # Plot loss
-        plt.plot(history.history["loss"], label="Training Loss")
-        plt.plot(history.history["val_loss"], label="Validation Loss")
-        plt.title("Model Loss")
-        plt.xlabel("Epochs")
-        plt.ylabel("Loss")
-        plt.legend()
-        plt.savefig("loss_plot.png")
-
-    def evaluate(self):
-        # self.model.evaluate(valid_generator)
-        print("\nEvaluating the model on the validation data:")
-        loss, accuracy = self.model.evaluate(self.valid_generator, verbose=1)
-        print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
+    
 
     def predict_image(self, image_path):
         """
-        Predicts the gaze of
-        the person in the image.
+        Predicts the gaze of the person in the image.
         """
-        # Load and preprocess the image
         img = load_img(image_path, target_size=(224, 224))
         img_array = img_to_array(img)
         img_array = preprocess_input(img_array)
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction = self.model.predict(img_array)[0]
+        
+        return "focused" if prediction > 0.5 else "not_focused", float(prediction)
 
-        if prediction < 0.5:
-            return "focused", float(prediction)
-        else:
-            return "not_focused", float(prediction)
+
+    def predict_image_with_labels(self, image_path, output_path, true_label=None):
+        """
+        Predicts the gaze of the person in the image, displays prediction and true label on image.
+        """
+
+        prediction, score = self.predict_image(image_path)
+        img = load_img(image_path)
+        title = f"Prediction: {prediction} (score: {score:.2f})"
+
+        if true_label:
+            title = f"True label: {true_label}, {title}"
+      
+        plt.title(title)
+        plt.axis("off")
+        plt.imshow(img)
+        plt.savefig(output_path)
 
     def make_predictions(self, image_dir, output_file, output_images=False):
         """
@@ -244,12 +203,19 @@ class GazeDetectionModel:
         """
         file = open(output_file, "a")
         model = self.model
+
+        if output_images and not os.path.exists("predictions"):
+            os.makedirs("predictions")
+
         for image in os.listdir(image_dir):
             if image.endswith(".jpg"):
                 image_path = os.path.join(image_dir, image)
+                print(image_path)
                 true_label = image_path.split("/")[-2]
                 if output_images:
-                    self.predict_image_with_labels(image_path, f"predictions/{true_label}-{image}")
+                    self.predict_image_with_labels(
+                        image_path, f"predictions/{true_label}-{image}"
+                    )
                 else:
                     prediction, score = self.predict_image(image_path)
                     file.write(
@@ -258,25 +224,87 @@ class GazeDetectionModel:
 
         file.close()
 
-    def predict_image_with_labels(self, image_path, output_path):
+    def evaluate(self):
         """
-        Predicts the gaze of the person in the image, displays prediction and true label on image.
+        Evaluates the gaze detection model on the validation data.
         """
+        loss, accuracy = self.model.evaluate(self.valid_generator, verbose=1)
+        print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 
-        true_label = image_path.split("/")[-2]
-        prediction, score = self.predict_image(image_path)
+    def get_classification_report(self):
+        """
+        Returns the classification report for the model.
+        """
+        class_indices = self.valid_generator.class_indices
+        index_to_class = {v: k for k, v in class_indices.items()}
+        y_pred = (self.model.predict(self.valid_generator) > 0.5).astype("int32")
+        y_true = self.valid_generator.classes
+        y_pred_labels = [index_to_class[int(i)] for i in y_pred]
+        y_true_labels = [index_to_class[int(i)] for i in y_true]
+        cr = classification_report(y_true_labels, y_pred_labels)
+        cr_string = f"Classification Report:\n{cr}"
+        return cr_string
 
-        plt.title(f"True label: {true_label}, Prediction: {prediction} (score: {score:.2f})")
+    def get_confusion_matrix(self):
+        """
+        Returns the confusion matrix for the model.
+        """
+        class_indices = self.valid_generator.class_indices
+        index_to_class = {v: k for k, v in class_indices.items()}
+        y_pred = (self.model.predict(self.valid_generator) > 0.5).astype("int32")
+        y_true = self.valid_generator.classes
+        y_pred_labels = [index_to_class[int(i)] for i in y_pred]
+        y_true_labels = [index_to_class[int(i)] for i in y_true]
+        class_labels = [index_to_class[i] for i in range(len(index_to_class))]
 
-        img = tf.keras.preprocessing.image.load_img(image_path)
+        cm = confusion_matrix(y_true_labels, y_pred_labels)
+        cm_string = (
+            f"Confusion Matrix:\n"
+            f"{'':<15}{class_labels[0]:<15}{class_labels[1]:<15}\n"
+            f"{class_labels[0]:<15}{cm[0, 0]:<15}{cm[0, 1]:<15}\n"
+            f"{class_labels[1]:<15}{cm[1, 0]:<15}{cm[1, 1]:<15}\n"
+        )
 
-        plt.axis("off")
-        plt.imshow(img)
-        plt.savefig(output_path)
+        return cm_string
+
+    def output_valid_predictions(self, write_to_file=True, output_images=False):
+        """
+        Outputs the predictions for the validation data.
+        """
+        if write_to_file:
+            self.make_predictions(
+                "../../test_faces/valid/focused", "predictions.txt", output_images=False
+            )
+            self.make_predictions(
+                "../../test_faces/valid/not_focused",
+                "predictions.txt",
+                output_images=False,
+            )
+
+        if output_images:
+            self.make_predictions(
+                "../../test_faces/valid/focused", "predictions.txt", output_images=True
+            )
+            self.make_predictions(
+                "../../test_faces/valid/not_focused",
+                "predictions.txt",
+                output_images=True,
+            )
+
+    def output_valid_analytics(self):
+        """
+        Outputs the classification report and confusion matrix for the model.
+        """
+        print(self.evaluate())
+        print(self.get_classification_report())
+        print(self.get_confusion_matrix())
 
 
 def main():
-    model = GazeDetectionModel()
+    model = GazeDetectionModel(
+        "gaze_detection_model.h5", "../../test_faces/train", "../../test_faces/valid"
+    )
+    model.output_valid_analytics()
 
     #  print class indices
     # print(model.model.class_indices)
@@ -303,19 +331,9 @@ def main():
     #         image_path = os.path.join("../../test_faces/valid/not_focused", image)
     #         output_path = os.path.join(output_dir, f"prediction{output_count}.jpg")
     #         model.predict_image(image_path, output_path)
-    # # # # #         output_count += 1
-    model.make_predictions("../../test_faces/valid/focused", "predictions.txt", output_images=True)
-    model.make_predictions("../../test_faces/valid/not_focused", "predictions.txt", output_images=True)
-    # print class indices
+    # # # #         output_count += 1
 
-    # class_indices = model.valid_generator.class_indices
-    # index_to_class = {v: k for k, v in class_indices.items()}
-    # y_pred = (model.model.predict(model.valid_generator) > 0.5).astype("int32")
-    # y_true = model.valid_generator.classes
-    # y_pred_labels = [index_to_class[int(i)] for i in y_pred]
-    # y_true_labels = [index_to_class[int(i)] for i in y_true]
-
-    # print(classification_report(y_true_labels, y_pred_labels))
+    # # print class indices
 
 
 if __name__ == "__main__":
