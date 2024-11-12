@@ -192,17 +192,20 @@ class GazeDetectionModel:
 
         if true_label:
             title = f"True label: {true_label}, {title}"
+            
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
       
         plt.title(title)
         plt.axis("off")
         plt.imshow(img)
         plt.savefig(output_path)
+        plt.close()
 
-    def make_predictions(self, image_dir, output_file, output_images=False):
+    def make_predictions(self, image_dir, output_images=False):
         """
         Makes gaze predictions for all images in the given directory.
         """
-        file = open(output_file, "a")
         model = self.model
 
         if output_images and not os.path.exists("predictions"):
@@ -218,7 +221,7 @@ class GazeDetectionModel:
                             face_number = os.path.splitext(image)[0] 
                             prediction, score = self.predict_image(image_path)
                             self.predict_image_with_labels(
-                                image_path, f"predictions/{subdir}-{face_number}.jpg"
+                                image_path, f"predictions/{subdir}/{face_number}.jpg"
                             )
             
             
