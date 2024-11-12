@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import csv
 import matplotlib.pyplot as plt
 from sklearn import svm, datasets
 from sklearn.metrics import roc_curve, auc
@@ -206,23 +207,52 @@ class GazeDetectionModel:
 
         if output_images and not os.path.exists("predictions"):
             os.makedirs("predictions")
+            
+        if output_images:
+            for subdir in os.listdir(image_dir):
+                subdir_path = os.path.join(image_dir, subdir)
+                if os.path.isdir(subdir_path):
+                    for image in os.listdir(subdir_path):
+                        if image.endswith(".jpg"):
+                            image_path = os.path.join(subdir_path, image)
+                            face_number = os.path.splitext(image)[0] 
+                            prediction, score = self.predict_image(image_path)
+                            self.predict_image_with_labels(
+                                image_path, f"predictions/{subdir}-{face_number}.jpg"
+                            )
+            
+            
+        else:
+            with open("predictions.csv", 'w', newline='') as csvfile:
+                csv_writer = csv.writer(csvfile)
+                csv_writer.writerow(["Frame Number", "Face Number", "Prediction", "Score"])
+                
+                for subdir in os.listdir(image_dir):
+                    subdir_path = os.path.join(image_dir, subdir)
+                    if os.path.isdir(subdir_path):
+                        for image in os.listdir(subdir_path):
+                            if image.endswith(".jpg"):
+                                image_path = os.path.join(subdir_path, image)
+                                face_number = os.path.splitext(image)[0] 
+                                prediction, score = self.predict_image(image_path)
+                                csv_writer.writerow([subdir, face_number, prediction, score])
 
-        for image in os.listdir(image_dir):
-            if image.endswith(".jpg"):
-                image_path = os.path.join(image_dir, image)
-                print(image_path)
-                true_label = image_path.split("/")[-2]
-                if output_images:
-                    self.predict_image_with_labels(
-                        image_path, f"predictions/{true_label}-{image}"
-                    )
-                else:
-                    prediction, score = self.predict_image(image_path)
-                    file.write(
-                        f"File: {image}, True label: {true_label}, Prediction: {prediction}, Score: {score}\n"
-                    )
+        # for image in os.listdir(image_dir):
+        #     if image.endswith(".jpg"):
+        #         image_path = os.path.join(image_dir, image)
+        #         print(image_path)
+        #         true_label = image_path.split("/")[-2]
+        #         if output_images:
+        #             self.predict_image_with_labels(
+        #                 image_path, f"predictions/{true_label}-{image}"
+        #             )
+        #         else:
+        #             prediction, score = self.predict_image(image_path)
+        #             file.write(
+        #                 f"File: {image}, True label: {true_label}, Prediction: {prediction}, Score: {score}\n"
+        #             )
 
-        file.close()
+
 
     def evaluate(self):
         """
