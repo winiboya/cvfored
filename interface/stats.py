@@ -2,7 +2,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 
-class analytics:
+class Analytics:
     """
     Class for outputting analytics.
     """
@@ -26,32 +26,82 @@ class analytics:
     def line_chart(self):
 
         df = self.table()
-        temp = df['Frame Number']
-        x = temp.values.T.tolist()
-        temp = df['Percentages']
-        y = temp.values.T.tolist()
+        # temp = df['Frame Number']
+        x = df['Frame Number'].values
+        # temp = df['Percentages']
+        y = df['Percentages'].values
 
-        fig = px.line(x=x, y=y, labels={'x': 'Timestamp', 'y': 'Percent Attentive'}, markers=True)
-
-        fig.update_layout(
-            title='Attentiveness Over Time', font=dict(size=17), title_x=0.5, title_y=0.97,
-            xaxis_title_font=dict(size=18),  # Change font size for the x-axis title
-            yaxis_title_font=dict(size=18)   # Change font size for the y-axis title
+        fig = go.Figure(
+            data=go.Scatter(
+                x=x, 
+                y=y, 
+                mode='lines+markers',
+                marker=dict(size=8, color='#00356B', symbol='circle'),
+                hoverinfo='x+y',
+                line=dict(color='#00356B', width=2),
+                hovertemplate='<b>Percent Focused</b>: %{y:.2f}<br><b>Timestamp</b>: %{x}<extra></extra>'
+            )
         )
 
+        fig.update_layout(
+            title_x=0.5,
+            xaxis=dict(
+                title='<b>Timestamp</b>',
+                showgrid=True,
+                gridcolor='#D4D5D9',
+                griddash='dash', 
+                gridwidth=1,
+                zeroline=False,
+                showline=False,
+                showticklabels=True,
+                title_font=dict(size=20, color='black'),
+                tickfont=dict(size=14, color='#D4D5D9'),
+                tickangle=0
+            ),
+            yaxis=dict(
+                title='<b>Percentage Focused</b>',
+                showgrid=True,
+                gridcolor='#D4D5D9',
+                griddash='dash', 
+                gridwidth=1,
+                zeroline=False,
+                showline=False,
+                title_font=dict(size=20, color='black', weight='bold'),
+                tickfont=dict(size=14, color='#D4D5D9'),
+                range=[0, 100]
+            ),
+            plot_bgcolor='white',
+            margin=dict(l=40, r=40, t=40, b=40),
+            font=dict(family="Inter, sans-serif", size=12)
+        )
         # fig.show()
 
         return fig
+    
+    def get_average(self):
+    
+        df = self.table()
+        return df['Percentages'].mean()
+    
+    def get_max(self):
+        
+        df = self.table()
+        return df['Percentages'].max()
+    
+    def get_min(self):
+        
+        df = self.table()
+        return df['Percentages'].min()
+
 
     def stats(self):
 
-        df = self.table()
 
-        average = df['Percentages'].mean()
+        average = self.get_average()
 
-        max = df['Percentages'].max()
+        max = self.get_max()
 
-        min = df['Percentages'].min()
+        min = self.get_min()
         
         fig = go.Figure(data=[go.Table(header=dict(values=['', ''], height=30),
                  cells=dict(values=[

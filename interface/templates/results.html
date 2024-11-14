@@ -1,49 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        .chart-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0px; 
-            margin: 0;  
-            padding: 0; 
-        }
-        
-        #chart, #chart2 {
-            margin: 0;
-            padding: 0;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<link rel="stylesheet" href="../static/styles.css" />
+	</head>
+	<body>
+		<div class="body-container">
+			<div class="results-container">
+				<div class="stats-container">
+					<div class="stats-card">
+						<h2>{{ average }} %</h2>
+						<p>average focus</p>
+					</div>
+                    <div class="stats-card">
+						<h2>{{ student_count }}</h2>
+						<p>students detected</p>
+					</div>
+					<div class="stats-card">
+						<h2>{{ total_mins }}</h2>
+						<p>minutes analyzed</p>
+					</div>
+				</div>
 
-        /* Divider bar styling */
-        .divider {
-            width: 80%;        /* Make it full width */
-            height: 4px;        /* Thickness of the divider */
-            background-color: #ccc; /* Color of the divider */
-            margin: 10px auto;      /* Add margin before and after the divider */
-        }
+				<div class="chart-container" id="chart2"></div>
+				<script type="text/javascript">
+					var chartData = {{ graphJSON | safe }};
+					Plotly.newPlot('chart2', chartData.data, chartData.layout);
+				</script>
+			</div>
+		</div>
 
-        /* Optional: Customize Plotly chart layout to remove internal padding */
-        .plotly .plot {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
+		<!-- <h1 style="text-align: center; margin-bottom: 60px; margin-top: 50px;">{{filename}}</h1> -->
 
-        /* Optional: Slight negative margin to pull charts closer */
-        #chart, #chart2 {
-            margin-bottom: -5px;  /* Negative margin to pull charts closer */
-        }
+		<!-- <div class="divider"></div> -->
 
-    </style>
-</head>
-<body>
-    <h1 style="text-align: center; margin-bottom: 60px; margin-top: 50px;">{{filename}}</h1>
-
-    <div class="divider"></div>
-
+		<!-- 
     <div class="chart-container">
 
         <div id="chart2"></div>
@@ -59,6 +52,6 @@
             {{ chart2 | safe }}
         </script>  
 
-    </div>
-</body>
+    </div> -->
+	</body>
 </html>

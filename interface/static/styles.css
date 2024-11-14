@@ -1,17 +1,20 @@
 body {
     background-color: #EDF1F7;
     font-family: "Inter", sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 10px 0;
 
+}
+
+.index-body {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 
 .body-container {
     margin: auto;
-    width: 80%;
+    width: 70%;
     border-radius: 30px;
     background-color: white;
     padding: 1.5rem;
@@ -98,3 +101,83 @@ form p {
     background-color: black;
 
 }
+
+/* RESULTS.HTML */
+.results-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+.stats-container {
+    display: flex;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    border-radius: 8px;
+    padding: 15px 20px; 
+    margin-right: 30px;
+    text-align: left;   
+    font-family: "Inter", sans-serif;
+    border: 2px solid #D4D5D9; 
+}
+
+.stats-card h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold; 
+    color: black;
+}
+
+.stats-card p {
+    margin: 5px 0 0 0; /* Adjust margins for spacing */
+    font-size: 1rem;
+    color: #A9ACB4; 
+}
+
+
+.chart-container {
+    width: 80%;
+}
+
+.divider {
+    width: 100%;
+    height: 2px;
+    background-color: #ddd;
+    margin: 20px 0;
+}
+
+
+/*  
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; 
+    margin: 0;  
+    padding: 0; 
+}
+
+#chart, #chart2 {
+    margin: 0;
+    padding: 0;
+}
+
+.divider {
+    width: 80%;       
+    height: 4px;       
+    background-color: #ccc; 
+    margin: 10px auto;      /
+}
+
+.plotly .plot {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#chart, #chart2 {
+    margin-bottom: -5px;  
+}
+
+*/

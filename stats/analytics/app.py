@@ -17,16 +17,19 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 # ASSUMING OUTPUT OBTAINED
 file = "test_file.csv"
-analyze = analytics(file)
+
 
 @app.route('/')
 def index():
-
+    analyze = analytics(file)
+    average  = analyze.get_average()
+    student_count = 103
+    total_mins = 64
     fig1, fig2 = analyze.all()
 
     graphJSON = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
     chart2 = fig2.to_html(full_html=False)
-    return render_template('index.html', graphJSON=graphJSON, chart2 = chart2, filename = file)
+    return render_template('index.html', graphJSON=graphJSON, chart2 = chart2, filename = file, average=average, student_count=student_count, total_mins=total_mins)
     
 # @app.route('/')
 # def index():
