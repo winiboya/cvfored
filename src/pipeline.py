@@ -5,7 +5,7 @@ sys.path.insert(0, "../models/face_extraction")
 sys.path.insert(0, '../utils')
 
 from gaze_detection import GazeDetectionModel
-from face_extraction_model import FaceExtractionModel
+from new_face_extraction_model import FaceExtractionModel
 from video_frame_extraction import VideoFrameExtraction
 
 
@@ -16,8 +16,7 @@ class Pipeline:
         self.face_output_dir = "face_output_dir"
         self.video_frame_extraction = VideoFrameExtraction(self.frame_output_dir)
         self.face_extraction = FaceExtractionModel(
-            prototxt_path="../models/face_extraction/deploy.prototxt",
-            caffe_model_path="../models/face_extraction/res10_300x300_ssd_iter_140000.caffemodel",
+            
             input_directory=self.frame_output_dir,
             output_directory=self.face_output_dir
         )

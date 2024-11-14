@@ -9,7 +9,7 @@ sys.path.insert(0, '../models/gaze_detection')
 sys.path.insert(0, '../models/face_extraction')
 sys.path.insert(0, '../utils')
 
-from face_extraction_model_test import FaceExtractionModel
+from face_extraction_model import FaceExtractionModel
 
 def main():
     
