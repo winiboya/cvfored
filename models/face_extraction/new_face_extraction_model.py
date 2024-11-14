@@ -158,25 +158,18 @@ class FaceExtractionModel:
 
             # If file is image:
             if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
-
-                try: 
     
-                    file_path = os.path.join(self.input_directory, filename)
-                    
-                    image = cv2.imread(file_path)
-                    
-                    if image is None:
-
-                        continue
-
-                    image_count +=1
-
-                    # use image as input
-                    output_image, results, extractions_org, extractions_org, faces_count = self.detect_faces(image, min_confidence, filename[:-4], display = False)
+                file_path = os.path.join(self.input_directory, filename)
                 
-                except:
-                    print(f"BAD: {filename}")
+                image = cv2.imread(file_path)
+                
+                if image is None:
+
                     continue
 
-        return
-    
+                image_count +=1
+
+                # use image as input
+                output_image, results, extractions_org, extractions_org, faces_count = self.detect_faces(image, min_confidence, filename[:-4], display = False)
+                
+        return faces_count
