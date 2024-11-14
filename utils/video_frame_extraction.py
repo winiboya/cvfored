@@ -55,12 +55,12 @@ class VideoFrameExtraction:
                 break
                 
             if frame_number % frame_interval == 0:
-                frame_filename = os.path.join(self.output_dir, f"frame{saved_frame_count}.jpg")
-                cv2.imwrite(frame_filename, frame)
-                
                 current_time = video.get(cv2.CAP_PROP_POS_MSEC)
                 formatted_time = f"{self._format_time(current_time)} / {formatted_duration}"
                 timestamps.append(formatted_time)
+
+                frame_filename = os.path.join(self.output_dir, f"{self._format_time(current_time)}.jpg")
+                cv2.imwrite(frame_filename, frame)
                 
                 saved_frame_count += 1
                 

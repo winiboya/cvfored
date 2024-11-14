@@ -1,4 +1,4 @@
-from stats import analytics
+from cvfored.stats.analytics.stats import analytics
 
 file = "test_file.csv"
 
