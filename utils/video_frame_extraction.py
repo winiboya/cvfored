@@ -27,7 +27,7 @@ class VideoFrameExtraction:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
             
-    def extract_frames(self, video_path, file_prefix="input-video"):
+    def extract_frames(self, video_path, file_prefix=""):
         """
         Extracts frames from the video file and saves them to the output directory.
         
@@ -58,8 +58,10 @@ class VideoFrameExtraction:
                 current_time = video.get(cv2.CAP_PROP_POS_MSEC)
                 formatted_time = f"{self._format_time(current_time)} / {formatted_duration}"
                 timestamps.append(formatted_time)
-
-                frame_filename = os.path.join(self.output_dir, f"{self._format_time(current_time)}.jpg")
+                if file_prefix:
+                    frame_filename = os.path.join(self.output_dir, f"{file_prefix}_{saved_frame_count}.jpg")
+                else: 
+                    frame_filename = os.path.join(self.output_dir, f"{self._format_time(current_time)}.jpg")
                 cv2.imwrite(frame_filename, frame)
                 
                 saved_frame_count += 1
