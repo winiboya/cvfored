@@ -9,7 +9,7 @@ sys.path.insert(0, '../models/gaze_detection')
 sys.path.insert(0, '../models/face_extraction')
 sys.path.insert(0, '../utils')
 
-from new_face_extraction_model import FaceExtractionModel
+from cvfored.models.face_extraction.face_extraction_model import FaceExtractionModel
 
 def main():
     
@@ -21,7 +21,6 @@ def main():
         )
     
     face_extraction.extract_faces()
-    # face_extraction.one_pass_extract_faces()
     
     print("DONE")
     

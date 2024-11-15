@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<link rel="stylesheet" href="../static/styles.css" />
+	</head>
+	<body>
+		<div class="body-container">
+			<div class="results-container">
+				<div class="stats-container">
+					<div class="stats-card">
+						<h2>{{ average }} %</h2>
+						<p>average focus</p>
+					</div>
+                    <div class="stats-card">
+						<h2>{{ student_count }}</h2>
+						<p>students detected</p>
+					</div>
+					<div class="stats-card">
+						<h2>{{ total_mins }}</h2>
+						<p>minutes analyzed</p>
+					</div>
+				</div>
+
+				<div class="chart-container" id="chart2"></div>
+				<script type="text/javascript">
+					var chartData = {{ graphJSON | safe }};
+					Plotly.newPlot('chart2', chartData.data, chartData.layout);
+				</script>
+			</div>
+		</div>
+
+		<!-- <h1 style="text-align: center; margin-bottom: 60px; margin-top: 50px;">{{filename}}</h1> -->
+
+		<!-- <div class="divider"></div> -->
+
+		<!-- 
+    <div class="chart-container">
+
+        <div id="chart2"></div>
+        <script type="text/javascript">
+            var chartData = {{ graphJSON | safe }};
+            Plotly.newPlot('chart2', chartData.data, chartData.layout);
+        </script>
+
+        <div class="divider"></div>
+
+        <div id="chart"></div>
+        <script>
+            {{ chart2 | safe }}
+        </script>  
+
+    </div> -->
+	</body>
+</html>
