@@ -58,7 +58,8 @@ class TestDataExtraction:
         for filename in os.listdir(self.input_dir):
             if filename.endswith(".MOV"):
                 video_path = os.path.join(self.input_dir, filename)
-                num_frames, _ += self.video_frame_extraction.extract_frames(video_path, "video" + str(count))
+                new_num_frames, _ = self.video_frame_extraction.extract_frames(video_path, "video" + str(count))
+                num_frames += new_num_frames
                 count += 1
         return num_frames
                 
