@@ -24,34 +24,18 @@
 					</div>
 				</div>
 
-				<div class="chart-container" id="chart2"></div>
+				<div class="chart-container" id="chart1"></div>
 				<script type="text/javascript">
 					var chartData = {{ graphJSON | safe }};
-					Plotly.newPlot('chart2', chartData.data, chartData.layout);
+					Plotly.newPlot('chart1', chartData.data, chartData.layout);
+				</script>
+
+				<div class="chart-container" id="chart2"></div>
+				<script type="text/javascript">
+					var chartData2 = {{ graphJSON2 | safe }};
+					Plotly.newPlot('chart2', chartData2.data, chartData2.layout);
 				</script>
 			</div>
 		</div>
-
-		<!-- <h1 style="text-align: center; margin-bottom: 60px; margin-top: 50px;">{{filename}}</h1> -->
-
-		<!-- <div class="divider"></div> -->
-
-		<!-- 
-    <div class="chart-container">
-
-        <div id="chart2"></div>
-        <script type="text/javascript">
-            var chartData = {{ graphJSON | safe }};
-            Plotly.newPlot('chart2', chartData.data, chartData.layout);
-        </script>
-
-        <div class="divider"></div>
-
-        <div id="chart"></div>
-        <script>
-            {{ chart2 | safe }}
-        </script>  
-
-    </div> -->
 	</body>
 </html>

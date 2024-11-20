@@ -14,12 +14,22 @@
                 const topicGroup = document.createElement('div');
                 topicGroup.classList.add('topic-group');
                 topicGroup.innerHTML = `
-                    <label for="topic_name">Topic Name:</label>
-                    <input type="text" name="topic_name" required><br>
-                    <label for="start_time">Start Timestamp (HH:MM):</label>
-                    <input type="text" name="start_time" placeholder="00:00" required><br>
-                    <label for="end_time">End Timestamp (HH:MM):</label>
-                    <input type="text" name="end_time" placeholder="00:00" required><br><br>
+                        <div class="form-container-new-topic">
+                            <label for="topic_name">Topic Name:</label>
+                        </div>
+                        <div class="form-container">
+                            <input class="topic-text-name"type="text" name="topic_name" required><br>
+                        </div>
+                        <div class="form-container">
+                            <label for="start_time">Start Timestamp:</label>
+                        </div>
+                        <div class="form-container">
+                            <input class="topic-text" type="text" name="start_time" placeholder="00:00" required><br>
+                        </div>
+                        <div class="form-container">
+                            <label for="end_time">End Timestamp:</label>
+                        </div>
+                            <input class="topic-text" type="text" name="end_time" placeholder="00:00" required><br><br>
                 `;
                 container.appendChild(topicGroup);
             }
@@ -39,31 +49,41 @@
                 <section class="uploaded-section"></section>
             </div>
 
-            <h2>Submit Topics and Timestamps</h2>
+                <button class="button-results" type="submit">Start Analysis!</button>
+            </form>
+
+            <div class="topics-container">
+            <h2>Submit Topic Timestamps</h2>
 
             <form method="POST">
                 <div id="topics-container">
-                    <!-- Default topic group -->
                     <div class="topic-group">
-                        <label for="topic_name">Topic Name:</label>
-                        <input type="text" name="topic_name" required><br>
-                        <label for="start_time">Start Timestamp (HH:MM):</label>
-                        <input type="text" name="start_time" placeholder="00:00" required><br>
-                        <label for="end_time">End Timestamp (HH:MM):</label>
-                        <input type="text" name="end_time" placeholder="00:00" required><br><br>
+                        <div class="form-container">
+                            <label for="topic_name">Topic Name:</label>
+                        </div>
+                        <div class="form-container">
+                            <input class="topic-text-name"type="text" name="topic_name" required><br>
+                        </div>
+                        <div class="form-container">
+                            <label for="start_time">Start Timestamp:</label>
+                        </div>
+                        <div class="form-container">
+                            <input class="topic-text" type="text" name="start_time" placeholder="00:00" required><br>
+                        </div>
+                        <div class="form-container">
+                            <label for="end_time">End Timestamp:</label>
+                        </div>
+                            <input class="topic-text" type="text" name="end_time" placeholder="00:00" required><br><br>
                     </div>
                 </div>
-
-                <!-- Button to add more topics -->
-                <button type="button" onclick="addTopic()">Add Another Topic</button><br><br>
-
-                <!-- Submit Button -->
-                <button type="submit">Submit</button>
+                <button class="browse" type="button" onclick="addTopic()">Add Another Topic</button><br><br>
+                <button class="button-results" type="submit">Submit Topics</button>
+            </div>
             </form>
+            {% if response %}
+                <div class="topics-submitted-container">{{ response | safe }}</div>
+            {% endif %}
 
-                <button class="button-results" type="submit">Start Analysis!</button>
-            </form>
-        </div>
     </body>
     <script>
         document.addEventListener("DOMContentLoaded", () => {

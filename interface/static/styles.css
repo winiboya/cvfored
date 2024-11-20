@@ -102,6 +102,81 @@ form p {
 
 }
 
+/* TOPIC SUBMISSION */
+
+.form-container {
+    margin-bottom: 15px;
+}
+
+.form-container-new-topic {
+    margin-top: 50px; 
+}
+
+label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.topics-container {
+    border-radius: 5px;
+    border: 2px solid #000000;
+    margin: 2rem 16rem;
+    padding: 1rem;
+}
+
+.topics-submitted-container {
+    border-radius: 5px;
+    background-color: #eeeff2;
+    margin: 2rem 20rem;
+    padding: 1rem;
+}
+
+.button-topics {
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: 0px;
+    padding: 0.5rem 0.7rem;
+    color: white;
+    background-color: rgb(164, 157, 157);
+
+}
+
+.topic-text {
+    width: 15%;
+    padding: 10px; 
+    font-size: 16px; 
+    border: 2px solid #ccc; 
+    border-radius: 8px; 
+    outline: none; 
+    box-sizing: border-box; 
+    transition: border-color 0.3s ease; 
+}
+
+.topic-text-name {
+    width: 35%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none; 
+    box-sizing: border-box; 
+    transition: border-color 0.3s ease; 
+}
+
 /* RESULTS.HTML */
 .results-container {
     display: flex;
