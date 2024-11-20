@@ -51,12 +51,16 @@ def upload_file():
 
 @app.route('/results')
 def reuslts():
-    analyze = Analytics('test_file.csv')
-    fig1, fig2 = analyze.all()
-    average  = round(analyze.get_average())
-    student_count = 103
-    total_mins = 64
 
-    graphJSON = json.dumps(fig1, cls=plotly.utils.PlotlyJSONEncoder)
-    chart2 = fig2.to_html(full_html=False)
-    return render_template('results.html', graphJSON=graphJSON, chart2 = chart2, filename = file, average=average, student_count=student_count, total_mins=total_mins)
+    # full video analysis
+    analyze = Analytics('test_file.csv', ["math", "science", "english"], ["00:00", "00:00", "00:10"], ["00:30", "00:10", "00:15"])
+    all_stats = analyze.stats()
+    line_chart, table, average, student_count, average_student_count, minutes, std = all_stats['line_chart'], all_stats['table'], all_stats['average'], all_stats['student_count'], all_stats['average_student_count'], all_stats['minutes'], all_stats['std']
+
+    # topic analysis
+    if analyze.topic_names is not None:
+        averages_fig, average_student_count_fig, mins_fig, topics = analyze.topic_results()
+
+    graphJSON = json.dumps(line_chart, cls=plotly.utils.PlotlyJSONEncoder)
+    chart2 = table.to_html(full_html=False)
+    return render_template('results.html', graphJSON=graphJSON, chart2 = chart2, filename = file, average=average, student_count=student_count, minutes=minutes)
