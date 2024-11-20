@@ -21,8 +21,27 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
     
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+
+    if request.method == 'POST':
+        topic_names = request.form.getlist('topic_name')
+        start_times = request.form.getlist('start_time')
+        end_times = request.form.getlist('end_time')
+
+        topics = [
+            {"name": name, "start": start, "end": end}
+            for name, start, end in zip(topic_names, start_times, end_times)
+        ]
+
+        response = "<h2>Submitted Topics</h2>"
+        for i, topic in enumerate(topics):
+            response += (f"<b>Topic {i + 1}:</b> {topic['name']}<br>"
+                         f"<b>Start:</b> {topic['start']}<br>"
+                         f"<b>End:</b> {topic['end']}<br><br>")
+
+        return response
+
     return render_template('index.html')
 
 @app.route('/results')

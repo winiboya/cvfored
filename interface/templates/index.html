@@ -7,6 +7,23 @@
         <link rel="stylesheet" href="../static/styles.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
         <!-- styling inspired by Daniel Habib https://codingcss.medium.com/file-upload-with-progress-bar-html-css-javascript-8a21677431bd -->
+
+        <script>
+            function addTopic() {
+                const container = document.getElementById('topics-container');
+                const topicGroup = document.createElement('div');
+                topicGroup.classList.add('topic-group');
+                topicGroup.innerHTML = `
+                    <label for="topic_name">Topic Name:</label>
+                    <input type="text" name="topic_name" required><br>
+                    <label for="start_time">Start Timestamp (HH:MM):</label>
+                    <input type="text" name="start_time" placeholder="00:00" required><br>
+                    <label for="end_time">End Timestamp (HH:MM):</label>
+                    <input type="text" name="end_time" placeholder="00:00" required><br><br>
+                `;
+                container.appendChild(topicGroup);
+            }
+        </script>
     </head>
     <body class="index-body">
         <div class="body-container">
@@ -21,6 +38,28 @@
                 <button class="browse" type="button">Browse File</button>
                 <section class="uploaded-section"></section>
             </div>
+
+            <h2>Submit Topics and Timestamps</h2>
+
+            <form method="POST">
+                <div id="topics-container">
+                    <!-- Default topic group -->
+                    <div class="topic-group">
+                        <label for="topic_name">Topic Name:</label>
+                        <input type="text" name="topic_name" required><br>
+                        <label for="start_time">Start Timestamp (HH:MM):</label>
+                        <input type="text" name="start_time" placeholder="00:00" required><br>
+                        <label for="end_time">End Timestamp (HH:MM):</label>
+                        <input type="text" name="end_time" placeholder="00:00" required><br><br>
+                    </div>
+                </div>
+
+                <!-- Button to add more topics -->
+                <button type="button" onclick="addTopic()">Add Another Topic</button><br><br>
+
+                <!-- Submit Button -->
+                <button type="submit">Submit</button>
+            </form>
 
                 <button class="button-results" type="submit">Start Analysis!</button>
             </form>
