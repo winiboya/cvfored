@@ -25,6 +25,30 @@ if not os.path.exists(UPLOAD_FOLDER):
 def index():
     return render_template('index.html')
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+            print('No file part')
+            return redirect(request.url)
+        
+    file = request.files['file']
+    if file.filename == '':
+        print('No selected file')
+        return redirect(request.url)
+    
+    if file:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filepath)
+        
+        # Confirm the file is saved
+        if os.path.exists(filepath):
+            print('File successfully uploaded and saved')
+            return redirect(url_for('results', filename=file.filename))
+        else:
+            print('Failed to save the file')
+            return redirect(request.url)
+    
+
 @app.route('/results')
 def reuslts():
     analyze = Analytics('test_file.csv')

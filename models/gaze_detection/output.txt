@@ -1,0 +1,8 @@
+Begin
+Found 5803 images belonging to 2 classes.
+Found 1239 images belonging to 2 classes.
+Images type: <class 'numpy.ndarray'>
+Images shape: (32, 224, 224, 3)
+Labels type: <class 'numpy.float32'>
+Labels shape: (32,)
+Epoch 1/30

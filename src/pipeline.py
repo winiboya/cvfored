@@ -5,7 +5,7 @@ sys.path.insert(0, "../models/gaze_detection")
 sys.path.insert(0, "../models/face_extraction")
 sys.path.insert(0, '../utils')
 
-from new_face_extraction_model import FaceExtractionModel
+from face_extraction_model import FaceExtractionModel
 from video_frame_extraction import VideoFrameExtraction
 
 

@@ -13,10 +13,11 @@ from sklearn.metrics import (
     confusion_matrix,
     ConfusionMatrixDisplay,
 )
+import tensorflow as tf
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array, load_img, ImageDataGenerator
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model, Sequential
@@ -29,8 +30,6 @@ from tensorflow.keras.layers import (
     BatchNormalization,
     GlobalAveragePooling2D,
 )
-
-
 
 
 class GazeDetectionModel:
@@ -80,6 +79,7 @@ class GazeDetectionModel:
             loss="binary_crossentropy",
             metrics=["accuracy"],
         )
+        
 
         return model
 
@@ -105,6 +105,8 @@ class GazeDetectionModel:
             shuffle=True,
             classes=["not_focused", "focused"],
         )
+    
+
 
         valid_generator = valid_datagen.flow_from_directory(
             self.valid_dir,
@@ -114,38 +116,62 @@ class GazeDetectionModel:
             shuffle=False,
             classes=["not_focused", "focused"],
         )
+      
+        
+     
         return train_generator, valid_generator
+    
+    def _prepare_data_with_weights(self, generator):
+            def generator_wrapper():
+                for x, y in generator:
+                    # Create a sample weight array where each element is the weight for the corresponding label
+                    sample_weights = np.array([self.class_weights[label] for label in y])
+                    yield tf.convert_to_tensor(x, dtype=tf.float32), tf.convert_to_tensor(y, dtype=tf.float32), tf.convert_to_tensor(sample_weights, dtype=tf.float32)
+            return generator_wrapper()
 
-    def train(self, steps_per_epoch=19, epochs=30, validation_steps=4):
+    def train(self, steps_per_epoch=19, epochs=20, validation_steps=4):
         """
         Trains the gaze detection model.
         """
-
+    
+        
+        
+        
         # if validation loss does not decrease after 5 epochs, stop training
         early_stopping = EarlyStopping(
             monitor="val_loss", patience=5, restore_best_weights=True
         )
+        
         # adjust class weights to handle class imbalance
         class_weights = compute_class_weight(
             class_weight="balanced",
             classes=np.unique(self.train_generator.classes),
             y=self.train_generator.classes,
         )
-        class_weights = dict(enumerate(class_weights))
+        self.class_weights = dict(enumerate(class_weights))
+        
+        checkpoint = ModelCheckpoint(
+            "best_model.keras",
+            monitor="val_accuracy",
+            save_best_only=True,
+            mode="max",
+            verbose=1,
+        )
+        
+        
         
         history = self.model.fit(
-            self.train_generator,
+            self._prepare_data_with_weights(self.train_generator),
             steps_per_epoch=steps_per_epoch,
             epochs=epochs,
-            verbose=2,
-            validation_data=self.valid_generator,
-            validation_steps=validation_steps,
-            callbacks=[early_stopping],
-            class_weight=class_weights,
+            verbose=1,
+            validation_data=self._prepare_data_with_weights(self.valid_generator),
+            validation_steps=len(self.valid_generator),
+            callbacks=[early_stopping, checkpoint],
         )
 
         self._plot_history(history)
-        self.model.save("gaze_detection_model.h5")
+        self.model.save("gaze_detection_model.keras")
 
     def _plot_history(self, history):
         """
@@ -261,7 +287,8 @@ class GazeDetectionModel:
         """
         Evaluates the gaze detection model on the validation data.
         """
-        loss, accuracy = self.model.evaluate(self.valid_generator, verbose=1)
+        valid_data = self._prepare_data_with_weights(self.valid_generator)
+        loss, accuracy = self.model.evaluate(valid_data, verbose=1, steps=len(self.valid_generator))
         print(f"Validation Loss: {loss:.4f}, Validation Accuracy: {accuracy:.4f}")
 
     def get_classification_report(self):
@@ -335,14 +362,31 @@ class GazeDetectionModel:
 
 def main():
     model = GazeDetectionModel(
-        "gaze_detection_model.h5", "../../test_faces/train", "../../test_faces/valid"
+        "best_model.keras", "../../test_faces/train", "../../test_faces/valid"
     )
-    model.output_valid_analytics()
+    
+    # def verify_images(directory):
+    #     for root, dirs, files in os.walk(directory):
+    #         for filename in files:
+    #             if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+    #                 try:
+    #                     img_path = os.path.join(root, filename)
+    #                     img = load_img(img_path)
+    #                 except Exception as e:
+    #                     print(f"Error loading {img_path}: {str(e)}")
+    #             else:
+    #                 print(f"Skipping {filename} in {root}")
+
+    # # Add this to your __init__
+    # verify_images(model.train_dir)
+    # verify_images(model.valid_dir)
+    # model.train()
+    # model.output_valid_analytics()
 
     #  print class indices
     # print(model.model.class_indices)
 
-    # model.train()
+    model.train()
     # model.evaluate()
     # model.predict_image_with_labels("../../test_faces/valid/not_focused/video1-frame9-face2.jpg", "lol_prediction.jpg")
     # train_focused_names = os.listdir(model.train_focused_dir)
@@ -371,3 +415,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    

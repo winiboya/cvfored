@@ -5,13 +5,12 @@
 import sys
 import os
 
-sys.path.insert(0, '../models/gaze_detection')
 sys.path.insert(0, '../models/face_extraction')
-sys.path.insert(0, '../utils')
 
-from cvfored.models.face_extraction.face_extraction_model import FaceExtractionModel
+from face_extraction_model import FaceExtractionModel
 
 def main():
+    print("START")
     
     face_extraction = FaceExtractionModel(
             # prototxt_path="deploy.prototxt", 

@@ -14,3 +14,5 @@ output_faces/
 to_train/
 test_faces/
 valid_vids/
+env/
+valid_faces/
