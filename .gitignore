@@ -16,3 +16,4 @@ test_faces/
 valid_vids/
 env/
 valid_faces/
+model.keras
