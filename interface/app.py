@@ -6,14 +6,14 @@ import json
 import plotly
 from stats import Analytics
 
-import requests
+import sys
+sys.path.insert(0, "../src")
+from pipeline import Pipeline
 
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-file = "test_file.csv"
-# analyze = analytics(file)
 
 
 UPLOAD_FOLDER = './uploads'
@@ -25,35 +25,46 @@ if not os.path.exists(UPLOAD_FOLDER):
 def index():
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    if 'file' not in request.files:
-            print('No file part')
-            return redirect(request.url)
-        
-    file = request.files['file']
-    if file.filename == '':
-        print('No selected file')
-        return redirect(request.url)
     
-    if file:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)
+    if request.method == 'POST':
+    
+        if 'file' not in request.files:
+                print('No file part')
+                return redirect('/')
+            
+        file = request.files['file']
+        if file.filename == '':
+            print('No selected file')
+            return redirect('/')
         
-        # Confirm the file is saved
-        if os.path.exists(filepath):
-            print('File successfully uploaded and saved')
-            return redirect(url_for('results', filename=file.filename))
-        else:
-            print('Failed to save the file')
-            return redirect(request.url)
+        if file:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
+            
+            # Confirm the file is saved
+            if os.path.exists(filepath):
+                print('File successfully uploaded and saved')
+                return redirect(url_for('results', filename=file.filename))
+
+            else:
+                print('Failed to save the file')
+                return redirect('/')
+    else:
+        return redirect('/')
     
 
 @app.route('/results')
-def reuslts():
-
+def results():
+    filename = request.args.get('filename')
+    
+    print("Filename:", filename)
+    
+    pipeline = Pipeline("uploads/" + filename)
+    pipeline.run()
     # full video analysis
-    analyze = Analytics('test_file.csv', ["math", "science", "english"], ["00:00", "00:00", "00:10"], ["00:30", "00:10", "00:15"])
+    analyze = Analytics('predictions.csv', ["math", "science", "english"], ["00:00", "00:00", "00:10"], ["00:30", "00:10", "00:15"])
     all_stats = analyze.stats()
     line_chart, table, average, student_count, average_student_count, minutes, std = all_stats['line_chart'], all_stats['table'], all_stats['average'], all_stats['student_count'], all_stats['average_student_count'], all_stats['minutes'], all_stats['std']
 

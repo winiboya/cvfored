@@ -17,3 +17,4 @@ valid_vids/
 env/
 valid_faces/
 model.keras
+__pycache__/

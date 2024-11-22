@@ -129,10 +129,10 @@ class FaceExtractionModel:
             # Save face extraction to output directory
             output_directory = self.output_directory
             os.makedirs(output_directory, exist_ok=True)
-            # output_subdirectory = os.path.join(self.output_directory, file_prefix)
-            # os.makedirs(output_subdirectory, exist_ok=True)
+            output_subdirectory = os.path.join(self.output_directory, file_prefix)
+            os.makedirs(output_subdirectory, exist_ok=True)
             output_filename = f"{file_prefix}face{faces_count}.jpg"
-            output_path = os.path.join(output_directory, output_filename)
+            output_path = os.path.join(output_subdirectory, output_filename)
             # output_path = os.path.join(output_subdirectory, output_filename)
             extraction_index = faces_count - 1
             cv2.imwrite(output_path, extractions[extraction_index])

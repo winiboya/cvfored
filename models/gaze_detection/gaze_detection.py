@@ -236,6 +236,7 @@ class GazeDetectionModel:
 
         if output_images and not os.path.exists("predictions"):
             os.makedirs("predictions")
+                
             
         if output_images:
             for subdir in os.listdir(image_dir):
@@ -244,7 +245,11 @@ class GazeDetectionModel:
                     for image in os.listdir(subdir_path):
                         if image.endswith(".jpg"):
                             image_path = os.path.join(subdir_path, image)
-                            face_number = os.path.splitext(image)[0] 
+                            face_number = os.path.splitext(image)[0]
+                            
+                            output_subdir = os.path.join("predictions", subdir)
+                            os.makedirs(output_subdir, exist_ok=True)
+                            
                             prediction, score = self.predict_image(image_path)
                             self.predict_image_with_labels(
                                 image_path, f"predictions/{subdir}/{face_number}.jpg"
@@ -362,7 +367,7 @@ class GazeDetectionModel:
 
 def main():
     model = GazeDetectionModel(
-        "best_model.keras", "../../test_faces/train", "../../test_faces/valid"
+        "model.keras", "../../test_faces/train", "../../test_faces/valid"
     )
     
     # def verify_images(directory):

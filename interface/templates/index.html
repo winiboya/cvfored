@@ -12,15 +12,15 @@
         <div class="body-container">
             <h1>Detecting Distraction</h1>
             
-            <form id="upload" action="/upload" method="post" enctype="multipart/form-data">
+            <form id="upload" action="/upload" method="POST" enctype="multipart/form-data">
                 <div class="upload-container">
-                <input type="file" name="file-input" id="file-input" hidden>
-                <i class="fas fa-regular fa-upload"></i>
-                <p>Choose a file or drag & drop it here</p>
-                <p class="file-constraints">MP4 and MOV formats up to 50MB</p>
-                <button class="browse" type="button">Browse File</button>
-                <section class="uploaded-section"></section>
-            </div>
+                    <input type="file" name="file" id="file-input" hidden>
+                    <i class="fas fa-regular fa-upload"></i>
+                    <p>Choose a file or drag & drop it here</p>
+                    <p class="file-constraints">MP4 and MOV formats up to 50MB</p>
+                    <button class="browse" type="button">Browse File</button>
+                    <section class="uploaded-section"></section>
+                </div>
 
                 <button class="button-results" type="submit">Start Analysis!</button>
             </form>
@@ -31,7 +31,7 @@
 
             const uploadForm = document.querySelector("#upload");
             const fileInput = document.querySelector("#file-input");
-            const browseButton = document.querySelector("button");
+            const browseButton = document.querySelector(".browse");
 
             browseButton.addEventListener("click", () => {
                 fileInput.click();
@@ -50,15 +50,22 @@
                 e.preventDefault();
                 uploadForm.classList.remove("dragover");
                 const file = e.dataTransfer.files[0];
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
                 handleFile(file);
             });
 
-            uploadForm.addEventListener("change", () => {
+            fileInput.addEventListener("change", () => {
                 const file = fileInput.files[0];
                 handleFile(file);
             });
 
             function handleFile(file) {
+
+                if (!file) {
+                    return;
+                }
 
                 console.log("File uploaded: ", file.name);
 
@@ -81,6 +88,7 @@
                         <div class="details">
                             <p>${file.name}</p>
                             <p>${fileSize}</p>
+                        </div>
                     </div>
                 `;
                 uploadedSection.insertAdjacentHTML('beforeend', uploadedHTML); // Adds the HTML string to the end of the section
