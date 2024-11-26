@@ -36,40 +36,44 @@ class VideoFrameExtraction:
             file_prefix (str): The prefix to use for the extracted frame filenames.
         """
         
+        # verify video path
+        if not os.path.exists(video_path):
+            print(f"Video file not found: {video_path}")
+            return 0, []
+        
         video = cv2.VideoCapture(video_path)
-        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = video.get(cv2.CAP_PROP_FPS)
-        total_duration = total_frames / fps * 1000
-        formatted_duration = self._format_time(total_duration)
-        num_frames = int(total_frames * .02)
-        frame_interval = total_frames // num_frames
-        frame_number = 0
+        duration = video.get(cv2.CAP_PROP_FRAME_COUNT) / fps
+        formatted_duration = self._format_time(duration * 1000)
+        
         saved_frame_count = 0
         timestamps = []
+        interval = 10  # 10 seconds interval
 
-        
-        while video.isOpened():
-            ret, frame = video.read()
+        # Extract frame at each 10-second interval
+        current_time = 0
+        while current_time <= duration:
+            # Set video position to the exact frame we want
+            frame_position = int(current_time * fps)
+            video.set(cv2.CAP_PROP_POS_FRAMES, frame_position)
             
+            ret, frame = video.read()
             if not ret:
                 break
                 
-            if frame_number % frame_interval == 0:
-                current_time = video.get(cv2.CAP_PROP_POS_MSEC)
-                formatted_time = f"{self._format_time(current_time)} / {formatted_duration}"
-                timestamps.append(formatted_time)
-                if file_prefix:
-                    frame_filename = os.path.join(self.output_dir, f"{file_prefix}_{saved_frame_count}.jpg")
-                else: 
-                    frame_filename = os.path.join(self.output_dir, f"{self._format_time(current_time)}.jpg")
-                cv2.imwrite(frame_filename, frame)
-                
-                saved_frame_count += 1
-                
-                if saved_frame_count >= num_frames:
-                    break
-                
-            frame_number += 1
+            formatted_time = f"{self._format_time(current_time * 1000)} / {formatted_duration}"
+            timestamps.append(formatted_time)
+            
+            if file_prefix:
+                frame_filename = os.path.join(self.output_dir, f"{file_prefix}_{saved_frame_count}.jpg")
+            else: 
+                frame_filename = os.path.join(self.output_dir, f"{self._format_time(current_time * 1000)}.jpg")
+            
+            cv2.imwrite(frame_filename, frame)
+            saved_frame_count += 1
+            
+            # Move to next 10-second interval
+            current_time += interval
             
         video.release()
         cv2.destroyAllWindows()

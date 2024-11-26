@@ -21,7 +21,7 @@ class Pipeline:
             input_directory=self.frame_output_dir,
             output_directory=self.face_output_dir
         )
-        self.gaze_detection = GazeDetectionModel("../models/gaze_detection/gaze_detection_model.h5", "../test_faces/train", "../test_faces/valid")
+        self.gaze_detection = GazeDetectionModel("../models/gaze_detection/model.keras", "../test_faces/train", "../test_faces/valid")
 
         
     def run(self):

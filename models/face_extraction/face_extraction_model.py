@@ -93,6 +93,7 @@ class FaceExtractionModel:
 
         # Iterate through bounding boxes, draw on image, and extract faces
         for bbox in bboxes:
+            
 
             x1a = int((bbox[0]))
             y1a = int((bbox[1]))
@@ -131,7 +132,7 @@ class FaceExtractionModel:
             os.makedirs(output_directory, exist_ok=True)
             output_subdirectory = os.path.join(self.output_directory, file_prefix)
             os.makedirs(output_subdirectory, exist_ok=True)
-            output_filename = f"{file_prefix}face{faces_count}.jpg"
+            output_filename = f"face{faces_count}.jpg"
             output_path = os.path.join(output_subdirectory, output_filename)
             # output_path = os.path.join(output_subdirectory, output_filename)
             extraction_index = faces_count - 1

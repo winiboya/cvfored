@@ -18,4 +18,5 @@ env/
 valid_faces/
 model.keras
 __pycache__/
-lecture.MOV
+*.MOV
+*.jpg

@@ -20,7 +20,8 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img, ImageDa
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import load_model, Sequential
+from keras.models import load_model
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import (
     Conv2D,
     MaxPool2D,
@@ -30,7 +31,6 @@ from tensorflow.keras.layers import (
     BatchNormalization,
     GlobalAveragePooling2D,
 )
-
 
 class GazeDetectionModel:
     """
@@ -50,7 +50,8 @@ class GazeDetectionModel:
         Returns the saved gaze detection model if it exists, otherwise creates a new model.
         """
         if os.path.exists(self.model_path):
-            return load_model(self.model_path)
+            return tf.keras.models.load_model(self.model_path)
+           
 
 
         base_model = ResNet50(
@@ -171,7 +172,7 @@ class GazeDetectionModel:
         )
 
         self._plot_history(history)
-        self.model.save("gaze_detection_model.keras")
+        self.model.save("gaze_detection_model.keras", save_format='keras_v3')
 
     def _plot_history(self, history):
         """
@@ -258,7 +259,7 @@ class GazeDetectionModel:
             
         else:
             with open("predictions.csv", 'w', newline='') as csvfile:
-                csv_writer = csv.writer(csvfile)
+                csv_writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
                 csv_writer.writerow(["Frame Number", "Face Number", "Prediction", "Score"])
                 
                 for subdir in os.listdir(image_dir):
@@ -266,10 +267,14 @@ class GazeDetectionModel:
                     if os.path.isdir(subdir_path):
                         for image in os.listdir(subdir_path):
                             if image.endswith(".jpg"):
-                                image_path = os.path.join(subdir_path, image)
-                                face_number = os.path.splitext(image)[0] 
-                                prediction, score = self.predict_image(image_path)
-                                csv_writer.writerow([subdir, face_number, prediction, score])
+                                try:
+                                    
+                                    image_path = os.path.join(subdir_path, image)
+                                    face_number = os.path.splitext(image)[0].strip() 
+                                    prediction, score = self.predict_image(image_path)
+                                    csv_writer.writerow([subdir, face_number, prediction, f"{score:.4f}"])
+                                except Exception as e:
+                                    print(f"Error processing {image}: {str(e)}")
 
         # for image in os.listdir(image_dir):
         #     if image.endswith(".jpg"):
