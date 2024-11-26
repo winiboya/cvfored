@@ -48,11 +48,11 @@ class VideoFrameExtraction:
         
         saved_frame_count = 0
         timestamps = []
-        interval = 10  # 10 seconds interval
+        frame_step = duration / 9 
 
         # Extract frame at each 10-second interval
         current_time = 0
-        while current_time <= duration:
+        while saved_frame_count < 10:
             # Set video position to the exact frame we want
             frame_position = int(current_time * fps)
             video.set(cv2.CAP_PROP_POS_FRAMES, frame_position)
@@ -72,8 +72,8 @@ class VideoFrameExtraction:
             cv2.imwrite(frame_filename, frame)
             saved_frame_count += 1
             
-            # Move to next 10-second interval
-            current_time += interval
+            # Move to next interval
+            current_time += frame_step
             
         video.release()
         cv2.destroyAllWindows()

@@ -44,13 +44,14 @@ class GazeDetectionModel:
         self.valid_dir = valid_dir
         self.model = self._get_model()
         self.train_generator, self.valid_generator = self._get_data_generators()
+        self.class_weights = self._initialize_class_weights()
 
     def _get_model(self):
         """
         Returns the saved gaze detection model if it exists, otherwise creates a new model.
         """
         if os.path.exists(self.model_path):
-            return tf.keras.models.load_model(self.model_path)
+            return load_model(self.model_path)
            
 
 
@@ -129,6 +130,15 @@ class GazeDetectionModel:
                     sample_weights = np.array([self.class_weights[label] for label in y])
                     yield tf.convert_to_tensor(x, dtype=tf.float32), tf.convert_to_tensor(y, dtype=tf.float32), tf.convert_to_tensor(sample_weights, dtype=tf.float32)
             return generator_wrapper()
+        
+    def _initialize_class_weights(self):
+         # adjust class weights to handle class imbalance
+        class_weights = compute_class_weight(
+            class_weight="balanced",
+            classes=np.unique(self.train_generator.classes),
+            y=self.train_generator.classes,
+        )
+        return dict(enumerate(class_weights))
 
     def train(self, steps_per_epoch=19, epochs=20, validation_steps=4):
         """
@@ -143,13 +153,6 @@ class GazeDetectionModel:
             monitor="val_loss", patience=5, restore_best_weights=True
         )
         
-        # adjust class weights to handle class imbalance
-        class_weights = compute_class_weight(
-            class_weight="balanced",
-            classes=np.unique(self.train_generator.classes),
-            y=self.train_generator.classes,
-        )
-        self.class_weights = dict(enumerate(class_weights))
         
         checkpoint = ModelCheckpoint(
             "best_model.keras",
@@ -172,7 +175,7 @@ class GazeDetectionModel:
         )
 
         self._plot_history(history)
-        self.model.save("gaze_detection_model.keras", save_format='keras_v3')
+        self.model.save("gaze_detection_model.keras")
 
     def _plot_history(self, history):
         """
@@ -374,27 +377,7 @@ def main():
     model = GazeDetectionModel(
         "model.keras", "../../test_faces/train", "../../test_faces/valid"
     )
-    
-    # def verify_images(directory):
-    #     for root, dirs, files in os.walk(directory):
-    #         for filename in files:
-    #             if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-    #                 try:
-    #                     img_path = os.path.join(root, filename)
-    #                     img = load_img(img_path)
-    #                 except Exception as e:
-    #                     print(f"Error loading {img_path}: {str(e)}")
-    #             else:
-    #                 print(f"Skipping {filename} in {root}")
 
-    # # Add this to your __init__
-    # verify_images(model.train_dir)
-    # verify_images(model.valid_dir)
-    # model.train()
-    # model.output_valid_analytics()
-
-    #  print class indices
-    # print(model.model.class_indices)
 
     model.train()
     # model.evaluate()
