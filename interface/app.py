@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
+import threading
 import os
 import plotly.graph_objects as go
 import json
@@ -14,12 +15,43 @@ from pipeline import Pipeline
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-
+processing_data = {}
 
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+    
+    
+def process_video(filename):
+    try:
+        # Update global processing_data
+        global processing_data
+        processing_data[filename] = {'status': 'processing', 'progress': 0}
+        
+        pipeline = Pipeline("uploads/" + filename)
+        pipeline.run()
+        
+        processing_data[filename] = {
+            'status': 'analyzing'
+        }
+        
+        # Run analytics
+        analytics = Analytics('predictions.csv', ["math", "science", "english"], 
+                           ["00:00", "00:00", "00:10"], 
+                           ["00:30", "00:10", "00:15"])
+        
+        # Update processing status and store results
+        processing_data[filename] = {
+            'status': 'complete',
+            'analytics': analytics
+        }
+    except Exception as e:
+        # Handle errors during processing
+        processing_data[filename] = {
+            'status': 'error',
+            'error': str(e)
+        }
     
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -43,34 +75,51 @@ def index():
 
     return render_template('index.html', response=response)
 
+
+
+@app.route('/status/<filename>')
+def status(filename):
+    global processing_data
+    if filename not in processing_data:
+        return jsonify({'status': 'not_found'})
+    
+    status_data = processing_data[filename]
+    print(status_data)
+    return jsonify({
+        'status': status_data['status'],
+        'error': status_data.get('error'),
+        'progress': status_data.get('progress', 0)
+    })
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
-    
-    if request.method == 'POST':
-    
-        if 'file' not in request.files:
-                print('No file part')
-                return redirect('/')
-            
-        file = request.files['file']
-        if file.filename == '':
-            print('No selected file')
-            return redirect('/')
-        
-        if file:
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(filepath)
-            
-            # Confirm the file is saved
-            if os.path.exists(filepath):
-                print('File successfully uploaded and saved')
-                return redirect(url_for('results', filename=file.filename))
 
-            else:
-                print('Failed to save the file')
-                return redirect('/')
-    else:
-        return redirect('/')
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    try:
+        # Save the file
+        filename = file.filename
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        # Initialize processing status
+        processing_data[filename] = {'status': 'processing', 'progress': 0}
+
+        # Start processing in a separate thread
+        thread = threading.Thread(target=process_video, args=(filename,))
+        thread.daemon = True  # Make thread daemon so it dies when main thread dies
+        thread.start()
+
+        return jsonify({'filename': filename})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+    
     
 
 @app.route('/results')
@@ -79,16 +128,17 @@ def results():
     
     print("Filename:", filename)
     
-    pipeline = Pipeline("uploads/" + filename)
-    pipeline.run()
-    # full video analysis
-    analyze = Analytics('predictions.csv', ["math", "science", "english"], ["00:00", "00:00", "00:10"], ["00:30", "00:10", "00:15"])
-    all_stats = analyze.stats()
+    if filename not in processing_data:
+        print("uh oh")
+        return redirect('/')
+    
+    analytics = processing_data[filename]['analytics']
+    all_stats = analytics.stats()
     line_chart, table, average, student_count, average_student_count, minutes, std = all_stats['line_chart'], all_stats['table'], all_stats['average'], all_stats['student_count'], all_stats['average_student_count'], all_stats['minutes'], all_stats['std']
 
     # topic analysis
-    if analyze.topic_names is not None:
-        averages_fig, average_student_count_fig, mins_fig, topics = analyze.topic_results()
+    if analytics.topic_names is not None:
+        averages_fig, average_student_count_fig, mins_fig, topics = analytics.topic_results()
 
     graphJSON = json.dumps(line_chart, cls=plotly.utils.PlotlyJSONEncoder)
     graphJSON2 = json.dumps(averages_fig, cls=plotly.utils.PlotlyJSONEncoder)

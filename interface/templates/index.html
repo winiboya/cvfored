@@ -84,6 +84,13 @@
                 <div class="topics-submitted-container">{{ response | safe }}</div>
             {% endif %}
 
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="loading-text" id="loading-status"></div>
+                </div>
+            </div>
+
     </body>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -119,6 +126,7 @@
                 const file = fileInput.files[0];
                 handleFile(file);
             });
+            
 
             function handleFile(file) {
 
@@ -155,7 +163,91 @@
                 
             }
 
+            const loadingOverlay = document.getElementById("loading-overlay");
+            const loadingStatus = document.getElementById("loading-status");
+            
+            function showLoading(message = "Processing your video...") {
+                loadingOverlay.style.display = "flex";
+                loadingStatus.textContent = message;
+            }
+            
+            function hideLoading() {
+                loadingOverlay.style.display = "none";
+            }
+            
+            function checkStatus(filename) {
+                function pollStatus() {
+                    fetch(`/status/${filename}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Status check response:", data); // Debug log
+                            
+                            switch(data.status) {
+                                case 'complete':
+                                    hideLoading();
+                                    window.location.href = `/results?filename=${filename}`;
+                                    break;
+                                case 'error':
+                                    hideLoading();
+                                    alert('Error during processing: ' + data.error);
+                                    break;
+                                case 'processing':
+                                    showLoading(`Processing your video...`);
+                                    setTimeout(pollStatus, 2000);
+                                    break;
+                                case 'analyzing':
+                                    showLoading(`Analyzing your video...`);
+                                    setTimeout(pollStatus, 2000);
+                                    break;
+                                case 'not_found':
+                                    hideLoading();
+                                    alert('Processing data not found');
+                                    break;
+                                default:
+                                    console.log("Unknown status:", data.status); // Debug log
+                                    hideLoading();
+                                    break;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Status check error:", error); // Debug log
+                            hideLoading();
+                            alert('Error checking status: ' + error.message);
+                        });
+                }
+                
+                showLoading();
+                pollStatus();
+            }
+            
+            uploadForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                showLoading();
+                
+                const formData = new FormData(e.target);
+                
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    console.log("Upload response:", data); // Debug log
+                    
+                    if (data.error) {
+                        hideLoading();
+                        alert(data.error);
+                    } else if (data.filename) {
+                        checkStatus(data.filename);
+                    }
+                } catch (error) {
+                    console.error("Upload error:", error); // Debug log
+                    hideLoading();
+                    alert('Error uploading file: ' + error.message);
+                }
+            });
 
-        })
+        });
     </script>
 </html>
