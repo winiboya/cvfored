@@ -43,24 +43,28 @@ class VideoFrameExtraction:
         
         video = cv2.VideoCapture(video_path)
         fps = video.get(cv2.CAP_PROP_FPS)
+        total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
         duration = video.get(cv2.CAP_PROP_FRAME_COUNT) / fps
         formatted_duration = self._format_time(duration * 1000)
         
         saved_frame_count = 0
         timestamps = []
-        frame_step = duration / 9 
+        frame_step = (total_frames - 1) / 9  # -1 because we count from 0
 
-        # Extract frame at each 10-second interval
-        current_time = 0
-        while saved_frame_count < 10:
-            # Set video position to the exact frame we want
-            frame_position = int(current_time * fps)
+        for i in range(10):
+            # For first frame: i=0, frame_position=0
+            # For last frame: i=9, frame_position=total_frames-1
+            frame_position = int(i * frame_step)
+            if i == 9:  # Ensure we get the exact last frame
+                frame_position = total_frames - 1
+                
             video.set(cv2.CAP_PROP_POS_FRAMES, frame_position)
-            
             ret, frame = video.read()
+            
             if not ret:
                 break
                 
+            current_time = frame_position / fps
             formatted_time = f"{self._format_time(current_time * 1000)} / {formatted_duration}"
             timestamps.append(formatted_time)
             
@@ -72,11 +76,9 @@ class VideoFrameExtraction:
             cv2.imwrite(frame_filename, frame)
             saved_frame_count += 1
             
-            # Move to next interval
-            current_time += frame_step
-            
         video.release()
         cv2.destroyAllWindows()
+    
         return saved_frame_count, timestamps
     
     def _format_time(self, milliseconds):

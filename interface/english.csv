@@ -1,13 +1,1 @@
 Frame Number,Face Number,Prediction,Score
-00:10,face11,focused,0.6583
-00:10,face10,not_focused,0.3093
-00:10,face12,not_focused,0.2885
-00:10,face8,not_focused,0.4344
-00:10,face9,not_focused,0.4047
-00:10,face1,focused,0.7273
-00:10,face2,not_focused,0.3184
-00:10,face3,focused,0.6181
-00:10,face7,not_focused,0.2832
-00:10,face6,focused,0.5651
-00:10,face4,not_focused,0.3482
-00:10,face5,not_focused,0.4896

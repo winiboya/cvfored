@@ -29,8 +29,8 @@ def process_video(filename):
         global processing_data
         processing_data[filename] = {'status': 'processing', 'progress': 0}
         
-        pipeline = Pipeline("uploads/" + filename)
-        pipeline.run()
+        # pipeline = Pipeline("uploads/" + filename)
+        # pipeline.run()
         
         processing_data[filename] = {
             'status': 'analyzing'
@@ -140,6 +140,15 @@ def results():
     if analytics.topic_names is not None:
         averages_fig, average_student_count_fig, mins_fig, topics = analytics.topic_results()
 
-    graphJSON = json.dumps(line_chart, cls=plotly.utils.PlotlyJSONEncoder)
+    df = analytics.table()
+    chart_data = [
+        {
+            "timestamp": str(row['Frame Number']),
+            "focusPercentage": round(float(row['Percentages']), 1),
+        }
+        for _, row in df.iterrows()
+    ]
+
+    graphJSON = json.dumps(chart_data)
     graphJSON2 = json.dumps(averages_fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('results.html', graphJSON=graphJSON, graphJSON2 = graphJSON2, average=average, student_count=student_count, total_mins=minutes)
