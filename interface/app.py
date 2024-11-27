@@ -38,8 +38,8 @@ def process_video(filename):
         
         # Run analytics
         analytics = Analytics('predictions.csv', ["math", "science", "english"], 
-                           ["00:00", "00:00", "00:10"], 
-                           ["00:30", "00:10", "00:15"])
+                           ["00:00", "01:00", "02:10"], 
+                           ["00:30", "01:10", "02:15"])
         
         # Update processing status and store results
         processing_data[filename] = {
@@ -139,7 +139,17 @@ def results():
     # topic analysis
     if analytics.topic_names is not None:
         averages_fig, average_student_count_fig, mins_fig, topics = analytics.topic_results()
-
+        topic_data = [
+            {
+                "category": name,
+                "focusPercentage": topics[name]['average'],
+                "studentCount": topics[name]['average_student_count'],
+                "minutes": topics[name]['minutes'],
+                "standardDeviation": topics[name]['std']
+            }
+            for name in analytics.topic_names
+        ]
+        
     df = analytics.table()
     chart_data = [
         {
@@ -149,6 +159,6 @@ def results():
         for _, row in df.iterrows()
     ]
 
-    graphJSON = json.dumps(chart_data)
-    graphJSON2 = json.dumps(averages_fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template('results.html', graphJSON=graphJSON, graphJSON2 = graphJSON2, average=average, student_count=student_count, total_mins=minutes)
+    print(topic_data)
+    # graphJSON2 = json.dumps(averages_fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template('results.html', focusData=json.dumps(chart_data), topicData=json.dumps(topic_data), average=average, student_count=student_count, total_mins=minutes)

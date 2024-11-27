@@ -57,7 +57,7 @@ const FocusChart = () => {
 					<LineChart data={focusData} margin={{ top: 20, right: 70, left: 50, bottom: 60 }}>
 						<CartesianGrid strokeDasharray="3 3" />
 						<XAxis
-							dataKey="time"
+							dataKey="timestamp"
 							label={{ value: "Time", position: "bottom", style: { fontWeight: "bold" }, offset: 0, dx:-30 }}
 							tick={false}
                             dy={16}

@@ -263,7 +263,7 @@ label {
 }
 
 
-.chart-container {
+.chart-container, .topic-container {
     width: 100%;
     margin: 20px 0;
     background: white;
