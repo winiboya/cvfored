@@ -51,7 +51,7 @@ const FocusChart = () => {
 
 
 	return (
-		<div className="chart-container">
+		<div className="focus-container">
 			<div style={{ width: "100%", height: "400px" }}>
 				<ResponsiveContainer>
 					<LineChart data={focusData} margin={{ top: 20, right: 70, left: 50, bottom: 60 }}>

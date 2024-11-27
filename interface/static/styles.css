@@ -5,6 +5,10 @@ body {
 
 }
 
+h2 {
+    text-align: left !important;
+}
+
 .index-body {
     display: flex;
     justify-content: center; 
@@ -18,7 +22,8 @@ body {
     border-radius: 30px;
     background-color: white;
     padding: 1.5rem;
-    text-align: center;
+    padding-left: 5rem;
+    /* text-align: center; */
 }
 
 .upload-container {
@@ -263,11 +268,21 @@ label {
 }
 
 
-.chart-container, .topic-container {
-    width: 100%;
+.focus-container, .topic-container {
+    width: 90%;
     margin: 20px 0;
     background: white;
     border-radius: 8px;
-    padding: 16px;
+    /* padding: 10px; */
     /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+}
+
+.section-container {
+    margin-bottom: 10px;
+}
+
+/* set first occurence of section container */
+
+.section-container:first-of-type {
+    margin-bottom: 50px;
 }
