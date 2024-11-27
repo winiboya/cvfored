@@ -1,18 +1,19 @@
 body {
-    background-color: #EDF1F7;
+    /* background-color: #EDF1F7; */
     font-family: "Inter", sans-serif;
     padding: 10px 0;
 
 }
 
 h2 {
-    text-align: left !important;
+    text-align: left;
 }
 
 .index-body {
     display: flex;
-    justify-content: center; 
-    align-items: center; 
+    align-items: left;
+    /* justify-content: center;  */
+    /* align-items: center;  */
 }
 
 
@@ -22,15 +23,18 @@ h2 {
     border-radius: 30px;
     background-color: white;
     padding: 1.5rem;
-    padding-left: 5rem;
+    /* padding-left: 5rem; */
     /* text-align: center; */
 }
 
 .upload-container {
     border-radius: 5px;
+    width: 50%;
     border: 2px dashed #A9ACB4;
-    margin: 2rem 6rem;
+    /* margin: 2rem 6rem; */
+    margin-bottom: 2rem;
     padding: 1rem;
+    text-align: center;
 }
 .uploaded-section {
     margin-top: 20px;
@@ -91,6 +95,8 @@ form p {
     background-color: white;
 }
 
+
+
 .file-constraints {
     color: #A9ACB4;
     font-style:italic;
@@ -101,6 +107,7 @@ form p {
     font-size: 1.2rem;
     border-radius: 5px;
     border: 0px;
+    margin-top: 2rem;
     padding: 0.5rem 0.7rem;
     color: white;
     background-color: black;
@@ -136,11 +143,9 @@ label {
     transition: border-color 0.3s ease-in-out;
 }
 
-.topics-container {
+#topics-container {
     border-radius: 5px;
-    border: 2px solid #000000;
-    margin: 2rem 16rem;
-    padding: 1rem;
+    margin: 10px 0 10px 10px;
 }
 
 .topics-submitted-container {
@@ -157,9 +162,21 @@ label {
     padding: 0.5rem 0.7rem;
     color: white;
     background-color: rgb(164, 157, 157);
-
 }
 
+.topic-entry input {
+    font-size: 0.8rem;
+    border-radius: 3px;
+    border: 2px solid #A9ACB4;
+    padding: 0.4rem 0.6rem;
+    background-color: white;
+    margin: 10px 0;
+}
+
+.topic-text, .topic-text-name {
+    width: auto;
+}
+/* 
 .topic-text {
     width: 15%;
     padding: 10px; 
@@ -180,7 +197,7 @@ label {
     outline: none; 
     box-sizing: border-box; 
     transition: border-color 0.3s ease; 
-}
+} */
 
 /* RESULTS.HTML */
 .results-container {
@@ -265,7 +282,7 @@ label {
     font-size: 18px;
     color: #333;
     margin-top: 10px;
-}
+}x
 
 
 .focus-container, .topic-container {
@@ -281,8 +298,75 @@ label {
     margin-bottom: 10px;
 }
 
-/* set first occurence of section container */
 
 .section-container:first-of-type {
     margin-bottom: 50px;
+}
+
+.apology-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.apology {
+    width: 40%;
+    margin: auto;
+}
+
+.toggle-container {
+    /* margin-bottom: 20px; */
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}
+
+.toggle-label input[type="checkbox"] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+#topic-content {
+    transition: all 0.3s ease;
+}
+
+
+.add-topic {
+    font-size: 0.8rem;
+    border-radius: 3px;
+    border: 2px solid #A9ACB4;
+    padding: 0.4rem 0.6rem;
+    /* margin-top: 1rem; */
+    background-color: white;
+    margin-left: 10px;
+}
+
+.topic-entry input {
+    font-size: 0.8rem;
+    border-radius: 3px;
+    border: 2px solid #A9ACB4;
+    padding: 0.4rem 0.6rem;
+    background-color: white;
+}
+
+.topic-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.remove-topic {
+    background: grey;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 6px;
+    cursor: pointer;
 }

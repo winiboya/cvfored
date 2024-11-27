@@ -23,57 +23,11 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
     
     
-def process_video(filename):
-    try:
-        # Update global processing_data
-        global processing_data
-        processing_data[filename] = {'status': 'processing', 'progress': 0}
-        
-        # pipeline = Pipeline("uploads/" + filename)
-        # pipeline.run()
-        
-        processing_data[filename] = {
-            'status': 'analyzing'
-        }
-        
-        # Run analytics
-        analytics = Analytics('predictions.csv', ["math", "science", "english"], 
-                           ["00:00", "01:00", "02:10"], 
-                           ["00:30", "01:10", "02:15"])
-        
-        # Update processing status and store results
-        processing_data[filename] = {
-            'status': 'complete',
-            'analytics': analytics
-        }
-    except Exception as e:
-        # Handle errors during processing
-        processing_data[filename] = {
-            'status': 'error',
-            'error': str(e)
-        }
     
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
-    response = None
-    if request.method == 'POST':
-        topic_names = request.form.getlist('topic_name')
-        start_times = request.form.getlist('start_time')
-        end_times = request.form.getlist('end_time')
-
-        topics = [
-            {"name": name, "start": start, "end": end}
-            for name, start, end in zip(topic_names, start_times, end_times)
-        ]
-
-        response = "<h2>Submitted Topics</h2>"
-        for i, topic in enumerate(topics):
-            response += (f"<b>Topic {i + 1}:</b> {topic['name']}<br>"
-                         f"<b>Start:</b> {topic['start']}<br>"
-                         f"<b>End:</b> {topic['end']}<br><br>")
-
-    return render_template('index.html', response=response)
+    return render_template('index.html')
 
 
 
@@ -100,6 +54,19 @@ def upload_file():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
+    
+    
+    topic_names = request.form.getlist('topic_name')
+    start_times = request.form.getlist('start_time')
+    end_times = request.form.getlist('end_time')
+
+    topics = None
+    if topic_names and topic_names[0].strip():  # Check if there's at least one non-empty topic
+        topics = [
+            {"name": name, "start": start, "end": end}
+            for name, start, end in zip(topic_names, start_times, end_times)
+        ]
+    
 
     try:
         # Save the file
@@ -108,10 +75,10 @@ def upload_file():
         file.save(filepath)
 
         # Initialize processing status
-        processing_data[filename] = {'status': 'processing', 'progress': 0}
+        processing_data[filename] = {'status': 'processing', 'progress': 0, 'topics': topics}
 
         # Start processing in a separate thread
-        thread = threading.Thread(target=process_video, args=(filename,))
+        thread = threading.Thread(target=process_data, args=(filename,))
         thread.daemon = True  # Make thread daemon so it dies when main thread dies
         thread.start()
 
@@ -129,13 +96,14 @@ def results():
     print("Filename:", filename)
     
     if filename not in processing_data:
-        print("uh oh")
-        return redirect('/')
+        print("File not found")
+        return render_template('apology.html')
     
     analytics = processing_data[filename]['analytics']
     all_stats = analytics.stats()
     line_chart, table, average, student_count, average_student_count, minutes, std = all_stats['line_chart'], all_stats['table'], all_stats['average'], all_stats['student_count'], all_stats['average_student_count'], all_stats['minutes'], all_stats['std']
 
+    topic_data = None
     # topic analysis
     if analytics.topic_names is not None:
         averages_fig, average_student_count_fig, mins_fig, topics = analytics.topic_results()
@@ -162,3 +130,41 @@ def results():
     print(topic_data)
     # graphJSON2 = json.dumps(averages_fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template('results.html', focusData=json.dumps(chart_data), topicData=json.dumps(topic_data), average=average, student_count=student_count, total_mins=minutes)
+
+
+
+def process_data(filename):
+    try:
+        # Update global processing_data
+        global processing_data
+        file_data = processing_data[filename]
+        topics = file_data.get('topics')
+        processing_data[filename].update({'status': 'processing', 'progress': 0})
+
+        
+        # pipeline = Pipeline("uploads/" + filename)
+        # pipeline.run()
+        
+        processing_data[filename] = {
+            'status': 'analyzing'
+        }
+        
+        # Run analytics
+        analytics = Analytics('predictions.csv', topic_names=[topic['name'] for topic in topics],
+                           topic_starts=[topic['start'] for topic in topics],
+                           topic_ends=[topic['end'] for topic in topics])
+        
+        # Update processing status and store results
+        processing_data[filename].update({
+            'status': 'complete',
+            'analytics': analytics
+        })
+    except Exception as e:
+        # Handle errors during processing
+        processing_data[filename].update({
+            'status': 'error',
+            'error': str(e)
+        })
+        
+def validate_topics(topics):
+    pass

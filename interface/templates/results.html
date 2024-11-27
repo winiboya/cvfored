@@ -36,15 +36,19 @@
                 </script>
                 <div id="focus-chart"></div>
             </div>
-            
-            <div class="section-container">
-                <h2>Focus By Topic</h2>
-                <script>
-                    window.topicData = JSON.parse('{{ topicData | safe }}');
-                    console.log('Data initialized:', window.topicData);
-                </script>
-                <div id="topic-chart"></div>
-            </div>
+
+            {% if topicData is not none %}
+
+                <div class="section-container">
+                    <h2>Focus By Topic</h2>
+                    <script>
+                        window.topicData = {{ topicData | safe }};
+                        console.log('Data initialized:', window.topicData);
+                    </script>
+                    <div id="topic-chart"></div>
+                </div>
+                
+            {% endif %}
 				<!-- <div class="chart-container" id="chart1"></div>
 				<script type="text/javascript">
 					var chartData = {{ graphJSON | safe }};
