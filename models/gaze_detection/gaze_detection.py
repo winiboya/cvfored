@@ -13,6 +13,7 @@ from sklearn.metrics import (
     confusion_matrix,
     ConfusionMatrixDisplay,
 )
+import seaborn as sns
 import tensorflow as tf
 from sklearn.utils.class_weight import compute_class_weight
 from tensorflow.keras.applications.resnet50 import preprocess_input
@@ -61,20 +62,35 @@ class GazeDetectionModel:
 
         base_model.trainable = False
 
-        for layer in base_model.layers[-10:]:
-            layer.trainable = True
+        # for layer in base_model.layers[-10:]:
+        #     layer.trainable = True
 
         # create model with ResNet50 base model and custom top layers
-        model = Sequential(
-            [
-                base_model,
-                GlobalAveragePooling2D(),
-                Dense(1024, activation="relu"),
-                BatchNormalization(),
-                Dropout(0.5),
-                Dense(1, activation="sigmoid"),
-            ]
-        )
+        # model = Sequential(
+        #     [
+        #         base_model,
+        #         GlobalAveragePooling2D(),
+        #         Dense(1024, activation="relu"),
+        #         BatchNormalization(),
+        #         Dropout(0.5),
+        #         Dense(1, activation="sigmoid"),
+        #     ]
+        # )
+        
+        model = Sequential([
+            base_model,
+            GlobalAveragePooling2D(),
+            Dense(2048, activation='relu'),  # Larger first dense layer
+            BatchNormalization(),
+            Dropout(0.5),
+            Dense(1024, activation='relu'),  # Additional dense layer
+            BatchNormalization(),
+            Dropout(0.3),
+            Dense(512, activation='relu'),   # Additional dense layer
+            BatchNormalization(),
+            Dropout(0.2),
+            Dense(1, activation='sigmoid')
+        ])
 
         model.compile(
             optimizer=Adam(learning_rate=0.0001),
@@ -372,6 +388,51 @@ class GazeDetectionModel:
         print(self.get_classification_report())
         print(self.get_confusion_matrix())
 
+    def plot_roc_curve(self):
+                
+        # Step 1: Get predicted probabilities
+        y_pred_probs = self.model.predict(self.valid_generator)  # Assumes valid_generator is used for evaluation
+        y_pred_probs = y_pred_probs.flatten()  # Flatten if needed
+
+        # Step 2: Get true labels
+        y_true = self.valid_generator.classes
+
+        # Step 3: Compute ROC metrics
+        fpr, tpr, thresholds = roc_curve(y_true, y_pred_probs)
+        roc_auc = auc(fpr, tpr)
+
+        # Step 4: Plot ROC curve
+        plt.figure(figsize=(10, 6))
+        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+        plt.plot([0, 1], [0, 1], color='gray', lw=2, linestyle='--')  # Diagonal line
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic (ROC) Curve')
+        plt.legend(loc="lower right")
+        plt.grid(alpha=0.3)
+        plt.savefig('roc_curve.png')
+    
+    def plot_confusion_matrix(self):
+        
+        # Get true labels and predictions
+        y_true = self.valid_generator.classes
+        y_pred = (self.model.predict(self.valid_generator) > 0.5).astype("int32").flatten()
+
+        # Compute confusion matrix
+        cm = confusion_matrix(y_true, y_pred)
+
+        # Plot confusion matrix heatmap
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                    xticklabels=['Not Focused', 'Focused'], 
+                    yticklabels=['Not Focused', 'Focused'])
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+        plt.title('Confusion Matrix Heatmap')
+        plt.savefig('confusion_matrix.png')
+      
 
 def main():
     model = GazeDetectionModel(
@@ -379,7 +440,8 @@ def main():
     )
 
 
-    model.train()
+    # model.train()
+    model.plot_roc_curve()
     # model.evaluate()
     # model.predict_image_with_labels("../../test_faces/valid/not_focused/video1-frame9-face2.jpg", "lol_prediction.jpg")
     # train_focused_names = os.listdir(model.train_focused_dir)
