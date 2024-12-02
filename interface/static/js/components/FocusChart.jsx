@@ -58,13 +58,13 @@ const FocusChart = () => {
 						<CartesianGrid strokeDasharray="3 3" />
 						<XAxis
 							dataKey="timestamp"
-							label={{ value: "Time", position: "bottom", style: { fontWeight: "bold" }, offset: 0, dx:-30 }}
+							label={{ value: "Time", position: "bottom", style: { fontWeight: "bold" }, offset: 0, dx:-30, fill: "black" }}
 							tick={false}
                             dy={16}
 						/>
 						<YAxis
 							domain={[0, 100]}
-							label={{ value: "Percentage Focused", angle: -90, position: "insideLeft", style: { fontWeight: "bold" }, textAnchor: "middle", dy: 100, dx: -10 }}
+							label={{ value: "Percentage Focused", angle: -90, position: "insideLeft", style: { fontWeight: "bold" }, textAnchor: "middle", dy: 100, dx: -10, fill: "black" }}
 							tick={{ fill: "#666" }}
                             dx={-10}
 						/>

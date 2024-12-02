@@ -11,7 +11,7 @@
             <h1>Detecting Distraction</h1>
 
             <div class="section-container">
-                <h2>Overall Statistics</h2>
+                <!-- <h2>Overall Statistics</h2> -->
 				<div class="stats-container">
 					<div class="stats-card">
 						<h2>{{ average }} %</h2>
@@ -29,7 +29,7 @@
             </div>
 
             <div class="section-container">
-                <h2>Focus Over Time</h2>
+                <!-- <h2>Focus Over Time</h2> -->
                 <script>
                     window.focusData = {{ focusData | safe }};
                     console.log('Data initialized:', window.focusData);
@@ -40,7 +40,7 @@
             {% if topicData is not none %}
 
                 <div class="section-container">
-                    <h2>Focus By Topic</h2>
+                    <!-- <h2>Focus By Topic</h2> -->
                     <script>
                         window.topicData = {{ topicData | safe }};
                         console.log('Data initialized:', window.topicData);

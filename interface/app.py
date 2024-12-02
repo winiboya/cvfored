@@ -66,6 +66,11 @@ def upload_file():
             {"name": name, "start": start, "end": end}
             for name, start, end in zip(topic_names, start_times, end_times)
         ]
+        
+        if not topics:
+            topics = None
+            print("No topics")
+    print(topics)
     
 
     try:
@@ -149,10 +154,17 @@ def process_data(filename):
             'status': 'analyzing'
         }
         
-        # Run analytics
-        analytics = Analytics('predictions.csv', topic_names=[topic['name'] for topic in topics],
+        if topics is None:
+            analytics = Analytics('predictions.csv')
+        
+        else:
+            analytics = Analytics('predictions.csv', topic_names=[topic['name'] for topic in topics],
                            topic_starts=[topic['start'] for topic in topics],
                            topic_ends=[topic['end'] for topic in topics])
+            
+        
+
+        
         
         # Update processing status and store results
         processing_data[filename].update({

@@ -223,7 +223,7 @@ class Analytics:
         return all_stats
     
     def topic_separation(self):
-
+    
         output_csvs = []
 
         for i in range(len(self.topic_names)):

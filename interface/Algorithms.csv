@@ -1,0 +1,22 @@
+Frame Number,Face Number,Prediction,Score
+01:37,face11,not_focused,0.2683
+01:37,face10,not_focused,0.498
+01:37,face8,focused,0.7996
+01:37,face9,not_focused,0.3104
+01:37,face1,not_focused,0.1661
+01:37,face2,not_focused,0.018
+01:37,face3,focused,0.6637
+01:37,face7,not_focused,0.4517
+01:37,face6,not_focused,0.1262
+01:37,face4,focused,0.5796
+01:37,face5,focused,0.68
+01:17,face10,not_focused,0.0846
+01:17,face8,focused,0.5696
+01:17,face9,focused,0.7753
+01:17,face1,focused,0.7938
+01:17,face2,focused,0.5514
+01:17,face3,focused,0.7482
+01:17,face7,not_focused,0.2427
+01:17,face6,focused,0.6785
+01:17,face4,not_focused,0.2602
+01:17,face5,not_focused,0.3397

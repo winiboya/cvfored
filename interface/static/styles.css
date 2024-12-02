@@ -282,7 +282,13 @@ label {
     font-size: 18px;
     color: #333;
     margin-top: 10px;
-}x
+}
+
+#focus-chart {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: -20px;
+}
 
 
 .focus-container, .topic-container {
@@ -290,6 +296,7 @@ label {
     margin: 20px 0;
     background: white;
     border-radius: 8px;
+    /* margin-left: 0px; */
     /* padding: 10px; */
     /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
 }
@@ -369,4 +376,8 @@ label {
     border-radius: 4px;
     padding: 6px 6px;
     cursor: pointer;
+}
+
+.topic-section {
+    width: 70%;
 }
